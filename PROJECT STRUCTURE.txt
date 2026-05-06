@@ -1,0 +1,23 @@
+ai-projects/
+│
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── routes/
+│   │   │   ├── incident.py
+│   │   │   └── logs.py
+│   │   └── services/
+│   │       └── openai_service.py
+│   ├── requirements.txt
+│   └── .env
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── IncidentAnalyzer.jsx
+│   │   │   └── LogAnalyzer.jsx
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   └── api.js
+│   ├── package.json
+│   └── index.html
