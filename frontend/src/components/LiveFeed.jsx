@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
 
+// Convert VITE_API_URL (http/https) into a WebSocket URL (ws/wss)
+const getWebSocketUrl = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+  return apiUrl.replace(/^http/, "ws") + "/ws";
+};
+
 export default function LiveFeed() {
 
   const [messages, setMessages] = useState([]);
@@ -8,9 +14,7 @@ export default function LiveFeed() {
 
     let socket;
     try {
-      socket = new WebSocket(
-        "ws://127.0.0.1:8000/ws"
-      );
+      socket = new WebSocket(getWebSocketUrl());
 
       socket.onmessage = (event) => {
         setMessages((prev) => [

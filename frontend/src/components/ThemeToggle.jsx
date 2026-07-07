@@ -1,37 +1,27 @@
-import { Moon, Sun,} from "lucide-react";
-import { useTheme,} from "../context/ThemeContext";
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "../context/ThemeContext";
 
-export default function ThemeToggle() {
+export default function ThemeToggle({ collapsed }) {
 
-  const { darkMode, toggleTheme, } = useTheme();
+  const { darkMode, toggleTheme } = useTheme();
 
   return (
-
     <button
       onClick={toggleTheme}
-      className="
-        p-2 rounded-xl
-        border transition-all
-        bg-white dark:bg-slate-900
-        border-slate-300
-        dark:border-slate-700
-        hover:scale-105
-      "
+      className={`
+        flex items-center justify-center
+        p-3 rounded-xl
+        border transition
+        bg-slate-100 dark:bg-slate-900
+        border-slate-300 dark:border-slate-700
+        hover:bg-slate-200 dark:hover:bg-slate-800
+        ${collapsed ? "w-full" : "flex-1"}
+      `}
     >
       {darkMode ? (
-        <Sun
-          size={18}
-          className="
-            text-yellow-400
-          "
-        />
+        <Sun size={18} className="text-yellow-400" />
       ) : (
-        <Moon
-          size={18}
-          className="
-            text-slate-700
-          "
-        />
+        <Moon size={18} className="text-slate-700" />
       )}
     </button>
   );

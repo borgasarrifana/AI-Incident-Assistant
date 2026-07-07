@@ -1,6 +1,7 @@
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import { useIncident } from "../context/IncidentContext";
+import { useSidebar } from "../context/SidebarContext";
 import { useEffect } from "react";
 import { useMap } from "react-leaflet";
 
@@ -23,21 +24,25 @@ function getSeverityRadius(severity) {
   }
 }
 
-function ResizeMap() {
+// resizeTrigger changes whenever the layout shifts (e.g. sidebar collapse)
+function ResizeMap({ resizeTrigger }) {
   const map = useMap();
+
   useEffect(() => {
-    const timer = setTimeout(() => map.invalidateSize(), 300);
+    // fires on mount AND every time resizeTrigger changes
+    // delay matches the sidebar's transition-all duration-300
+    const timer = setTimeout(() => map.invalidateSize(), 320);
     return () => clearTimeout(timer);
-  }, [map]);
+  }, [map, resizeTrigger]);
+
   return null;
 }
 
-// fullHeight prop — when true the map fills its parent's height via h-full
 export default function IncidentMap({ incidents = [], fullHeight = false }) {
   const { setSelectedIncident } = useIncident();
+  const { collapsed } = useSidebar();
 
   return (
-    // h-full fills whatever the parent gives — parent controls the actual height
     <div className={`${fullHeight ? "h-full" : "h-[500px]"} rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl`}>
       <MapContainer
         center={[20, 0]}
@@ -45,7 +50,7 @@ export default function IncidentMap({ incidents = [], fullHeight = false }) {
         scrollWheelZoom
         className="h-full w-full z-0"
       >
-        <ResizeMap />
+        <ResizeMap resizeTrigger={collapsed} />
 
         <TileLayer
           attribution='&copy; OpenStreetMap contributors'
@@ -57,7 +62,7 @@ export default function IncidentMap({ incidents = [], fullHeight = false }) {
             .filter((i) => i.latitude !== 0 || i.longitude !== 0)
             .map((incident) => {
               const severity = incident.result?.severity || "Low";
-              const color    = getSeverityColor(severity);
+              const color = getSeverityColor(severity);
 
               return (
                 <CircleMarker
