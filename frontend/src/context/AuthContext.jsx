@@ -10,6 +10,7 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
 
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // NEW
 
   useEffect(() => {
 
@@ -19,6 +20,8 @@ export function AuthProvider({ children }) {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+
+    setLoading(false); // NEW — mark hydration complete
 
   }, []);
 
@@ -45,6 +48,7 @@ export function AuthProvider({ children }) {
         user,
         login,
         logout,
+        loading, // NEW — expose to consumers
       }}
     >
       {children}
