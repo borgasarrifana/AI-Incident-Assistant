@@ -11,7 +11,7 @@ export default function Tooltip({ children, label, side = "right" }) {
 
   return (
     <div
-      className="relative inline-flex"
+      className="relative w-full"
       onMouseEnter={() => setShow(true)}
       onMouseLeave={() => setShow(false)}
     >

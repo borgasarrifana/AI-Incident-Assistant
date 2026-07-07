@@ -153,6 +153,16 @@ export default function IncidentAnalyzer() {
 
   // --- Info popover state ---
   const [showExample, setShowExample] = useState(false);
+  const hideTimeoutRef = useRef(null);
+
+  const openExample = () => {
+    clearTimeout(hideTimeoutRef.current);
+    setShowExample(true);
+  };
+
+  const scheduleCloseExample = () => {
+    hideTimeoutRef.current = setTimeout(() => setShowExample(false), 200);
+  };
 
   // --- Import queue state ---
   const [queue, setQueue] = useState([]); // [{ id, incident, location }]
@@ -371,8 +381,8 @@ export default function IncidentAnalyzer() {
           <div className="relative">
             <button
               type="button"
-              onMouseEnter={() => setShowExample(true)}
-              onMouseLeave={() => setShowExample(false)}
+              onMouseEnter={openExample}
+              onMouseLeave={scheduleCloseExample}
               onClick={() => setShowExample((v) => !v)}
               className="p-1 rounded-full text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition"
             >
@@ -380,8 +390,12 @@ export default function IncidentAnalyzer() {
             </button>
 
             {showExample && (
-              <div className="absolute right-0 top-7 w-80 z-50 p-4 rounded-xl shadow-2xl
-                bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700">
+              <div
+                onMouseEnter={openExample}
+                onMouseLeave={scheduleCloseExample}
+                className="absolute right-0 top-7 w-80 z-50 p-4 rounded-xl shadow-2xl
+                  bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700"
+              >
                 <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
                   Example incident description
                 </div>
