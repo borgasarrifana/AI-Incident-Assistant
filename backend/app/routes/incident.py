@@ -34,7 +34,7 @@ Analyze this incident:
 
 Identify the severity, tags, root cause, business impact, and recommended actions.
 """
-    result = analyze_text(prompt)
+    result = await analyze_text(prompt)
 
     await manager.broadcast("New incident analyzed")
 
