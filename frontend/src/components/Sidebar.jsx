@@ -7,6 +7,7 @@ import NotificationPopover from "./NotificationPopover";
 import NotificationCenter from "./NotificationCenter";
 import ThemeToggle from "./ThemeToggle";
 import { useSidebar } from "../context/SidebarContext";
+import Tooltip from "./Tooltip";
 import {
   LayoutDashboard,
   AlertTriangle,
@@ -91,13 +92,11 @@ export default function Sidebar() {
           {navItems
             .filter((item) => item.roles.includes(user?.role))
             .map((item) => {
-
               const Icon = item.icon;
               const active = location.pathname === item.path;
 
-              return (
+              const link = (
                 <Link
-                  key={item.name}
                   to={item.path}
                   className={`
                     flex items-center
@@ -111,10 +110,16 @@ export default function Sidebar() {
                   `}
                 >
                   <Icon size={20} />
-                  {!collapsed && (
-                    <span className="text-sm font-medium">{item.name}</span>
-                  )}
+                  {!collapsed && <span className="text-sm font-medium">{item.name}</span>}
                 </Link>
+              );
+
+              return collapsed ? (
+                <Tooltip key={item.name} label={item.name} side="right">
+                  {link}
+                </Tooltip>
+              ) : (
+                <div key={item.name}>{link}</div>
               );
             })}
 

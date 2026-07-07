@@ -6,7 +6,16 @@ import { useMetrics } from "../context/MetricsContext";
 import { useAudit } from "../context/AuditContext";
 import { useAuth } from "../context/AuthContext";
 import { useIncident } from "../context/IncidentContext";
-import { Loader2, MapPin, X } from "lucide-react";
+import {
+  Loader2,
+  MapPin,
+  X,
+  Info,
+  Upload,
+  ListChecks,
+  Trash2,
+  ChevronRight,
+} from "lucide-react";
 
 // All inputs share this class — covers both light and dark mode
 const inputCls =
@@ -17,6 +26,9 @@ const inputCls =
   "placeholder-slate-400 dark:placeholder-slate-500 " +
   "focus:outline-none focus:ring-2 focus:ring-blue-500 " +
   "transition";
+
+const EXAMPLE_INCIDENT =
+  "Payment API started returning 500 errors at 14:32 UTC. Error rate spiked from 2/min to 47/min within 5 minutes. Database connection pool exhausted (0/20 available). Orders and payments endpoints affected. Health check failing.";
 
 function parseAIResponse(raw) {
   const get = (label, nextLabel) => {
@@ -53,6 +65,71 @@ async function geocodeLocation(query) {
   return res.json();
 }
 
+// --- Minimal, dependency-free CSV parser ---
+// Supports a header row with "incident" and optional "location" columns,
+// and handles simple quoted fields containing commas.
+function parseCSV(text) {
+  const rows = [];
+  const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+  if (lines.length === 0) return rows;
+
+  const splitLine = (line) => {
+    const cells = [];
+    let cur = "";
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') {
+        inQuotes = !inQuotes;
+      } else if (ch === "," && !inQuotes) {
+        cells.push(cur);
+        cur = "";
+      } else {
+        cur += ch;
+      }
+    }
+    cells.push(cur);
+    return cells.map((c) => c.trim().replace(/^"|"$/g, ""));
+  };
+
+  const header = splitLine(lines[0]).map((h) => h.toLowerCase());
+  const incidentIdx = header.indexOf("incident");
+  const locationIdx = header.indexOf("location");
+
+  // If there's no recognizable header, treat every line as a raw incident description
+  if (incidentIdx === -1) {
+    return lines.map((line) => ({ incident: line.trim(), location: "" }));
+  }
+
+  for (let i = 1; i < lines.length; i++) {
+    const cells = splitLine(lines[i]);
+    const incident = cells[incidentIdx] || "";
+    const location = locationIdx !== -1 ? cells[locationIdx] || "" : "";
+    if (incident.trim()) rows.push({ incident: incident.trim(), location: location.trim() });
+  }
+
+  return rows;
+}
+
+// Accepts either an array of strings, or an array of { incident, location } objects
+function parseJSONIncidents(text) {
+  const data = JSON.parse(text);
+  if (!Array.isArray(data)) throw new Error("JSON file must contain an array");
+
+  return data
+    .map((item) => {
+      if (typeof item === "string") return { incident: item.trim(), location: "" };
+      if (item && typeof item === "object") {
+        return {
+          incident: (item.incident || item.description || "").trim(),
+          location: (item.location || item.locationName || "").trim(),
+        };
+      }
+      return null;
+    })
+    .filter((item) => item && item.incident);
+}
+
 const SEVERITY_COLOR = {
   Critical: "bg-red-500/20 text-red-400 border-red-500/30",
   High:     "bg-orange-500/20 text-orange-400 border-orange-500/30",
@@ -73,6 +150,14 @@ export default function IncidentAnalyzer() {
   const [locationSuggestions, setLocationSuggestions] = useState([]);
   const [locationLoading,     setLocationLoading]     = useState(false);
   const locationDebounce = useRef(null);
+
+  // --- Info popover state ---
+  const [showExample, setShowExample] = useState(false);
+
+  // --- Import queue state ---
+  const [queue, setQueue] = useState([]); // [{ id, incident, location }]
+  const [importError, setImportError] = useState(null);
+  const fileInputRef = useRef(null);
 
   const { addNotification }    = useNotifications();
   const { incrementIncidents } = useMetrics();
@@ -147,6 +232,59 @@ export default function IncidentAnalyzer() {
     } finally { setLoading(false); }
   };
 
+  // --- Import handlers ---
+
+  const handleFileSelected = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-selecting the same file later
+    if (!file) return;
+
+    setImportError(null);
+    try {
+      const text = await file.text();
+      let parsed = [];
+
+      if (file.name.toLowerCase().endsWith(".json")) {
+        parsed = parseJSONIncidents(text);
+      } else if (file.name.toLowerCase().endsWith(".csv")) {
+        parsed = parseCSV(text);
+      } else {
+        throw new Error("Please upload a .csv or .json file");
+      }
+
+      if (parsed.length === 0) {
+        throw new Error("No incidents found in that file");
+      }
+
+      const withIds = parsed.map((p) => ({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        incident: p.incident,
+        location: p.location || "",
+      }));
+
+      setQueue((prev) => [...withIds, ...prev]);
+      addNotification(`Imported ${withIds.length} incident(s) into the review queue`, "success");
+    } catch (err) {
+      setImportError(err.message || "Failed to import file");
+    }
+  };
+
+  // Loads a queued item into the form for review, then removes it from the queue
+  const loadQueueItem = (item) => {
+    setIncident(item.incident);
+    if (item.location) {
+      setLocationQuery(item.location);
+      setLocationName(item.location);
+    }
+    setQueue((prev) => prev.filter((q) => q.id !== item.id));
+    setResult(null);
+    setError(null);
+  };
+
+  const removeQueueItem = (id) => {
+    setQueue((prev) => prev.filter((q) => q.id !== id));
+  };
+
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-xl space-y-5">
 
@@ -158,11 +296,112 @@ export default function IncidentAnalyzer() {
         </span>
       </div>
 
+      {/* IMPORT ROW */}
+      <div className="flex items-center gap-2">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".csv,.json"
+          onChange={handleFileSelected}
+          className="hidden"
+        />
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium
+            bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700
+            text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition"
+        >
+          <Upload size={15} />
+          Import CSV / JSON
+        </button>
+
+        {queue.length > 0 && (
+          <span className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full
+            bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
+            <ListChecks size={13} /> {queue.length} pending review
+          </span>
+        )}
+      </div>
+
+      {importError && (
+        <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl p-3 text-xs text-red-600 dark:text-red-400">
+          {importError}
+        </div>
+      )}
+
+      {/* REVIEW QUEUE */}
+      {queue.length > 0 && (
+        <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+          <div className="px-3 py-2 bg-slate-50 dark:bg-slate-950 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+            Imported — review one at a time
+          </div>
+          <ul className="max-h-40 overflow-y-auto">
+            {queue.map((item) => (
+              <li
+                key={item.id}
+                className="flex items-center gap-2 px-3 py-2 border-t border-slate-100 dark:border-slate-800 text-sm"
+              >
+                <button
+                  onClick={() => loadQueueItem(item)}
+                  className="flex-1 flex items-center gap-2 text-left text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition truncate"
+                >
+                  <ChevronRight size={14} className="flex-shrink-0 text-slate-400" />
+                  <span className="truncate">{item.incident}</span>
+                </button>
+                <button
+                  onClick={() => removeQueueItem(item.id)}
+                  className="p-1 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition flex-shrink-0"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* DESCRIPTION */}
       <div>
-        <label className="block mb-1.5 text-sm font-medium text-slate-600 dark:text-slate-400">
-          Incident Description
-        </label>
+        <div className="flex items-center justify-between mb-1.5">
+          <label className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            Incident Description
+          </label>
+
+          {/* INFO ICON — example data on hover/click */}
+          <div className="relative">
+            <button
+              type="button"
+              onMouseEnter={() => setShowExample(true)}
+              onMouseLeave={() => setShowExample(false)}
+              onClick={() => setShowExample((v) => !v)}
+              className="p-1 rounded-full text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition"
+            >
+              <Info size={15} />
+            </button>
+
+            {showExample && (
+              <div className="absolute right-0 top-7 w-80 z-50 p-4 rounded-xl shadow-2xl
+                bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700">
+                <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
+                  Example incident description
+                </div>
+                <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                  {EXAMPLE_INCIDENT}
+                </p>
+                <button
+                  onClick={() => {
+                    setIncident(EXAMPLE_INCIDENT);
+                    setShowExample(false);
+                  }}
+                  className="mt-3 text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  Use this example
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
         <textarea
           value={incident}
           onChange={(e) => setIncident(e.target.value)}
