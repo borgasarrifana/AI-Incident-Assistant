@@ -30,7 +30,7 @@ function AppShell() {
       <div className="flex-1 overflow-y-auto p-4 flex flex-col">
 
         {/* MOBILE TOP BAR — hamburger + title, hidden on desktop */}
-        <div className="flex items-center gap-3 mb-4 md:hidden flex-shrink-0">
+        <div className="flex items-center gap-3 mb-4 lg:hidden flex-shrink-0">
           <button
             onClick={() => setMobileNavOpen(true)}
             className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-white"

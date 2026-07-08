@@ -36,7 +36,7 @@ export default function Incidents() {
     <div className="flex flex-col h-[calc(100vh-5rem)] gap-4 overflow-hidden -mr-6">
 
       {/* PAGE HEADER + QUICK STATS */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between flex-shrink-0 pr-6 gap-3">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between flex-shrink-0 pr-6 gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Incidents</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -44,16 +44,16 @@ export default function Incidents() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto md:overflow-visible md:flex-wrap pb-1 md:pb-0 -mx-1 px-1 md:mx-0 md:px-0">
+        <div className="flex items-center gap-2 overflow-x-auto lg:overflow-visible lg:flex-wrap pb-1 lg:pb-0 -mx-1 px-1 lg:mx-0 md:px-0">
           <StatPill icon={<Activity size={15} className="text-blue-500 flex-shrink-0" />}    label="Total"    value={total}    color="border-blue-200 dark:border-blue-500/20 bg-blue-50 dark:bg-blue-500/5 flex-shrink-0" />
           <StatPill icon={<AlertTriangle size={15} className="text-yellow-500 flex-shrink-0" />} label="Open"  value={open}     color="border-yellow-200 dark:border-yellow-500/20 bg-yellow-50 dark:bg-yellow-500/5 flex-shrink-0" />
           <StatPill icon={<ShieldAlert size={15} className="text-red-500 flex-shrink-0" />}   label="Critical" value={critical} color="border-red-200 dark:border-red-500/20 bg-red-50 dark:bg-red-500/5 flex-shrink-0" />
           <StatPill icon={<CheckCircle2 size={15} className="text-green-500 flex-shrink-0" />} label="Resolved" value={resolved} color="border-green-200 dark:border-green-500/20 bg-green-50 dark:bg-green-500/5 flex-shrink-0" />
         </div>
       </div>
-      
+
       {/* MOBILE TABS — hidden on desktop */}
-      <div className="flex md:hidden gap-2 pr-6 flex-shrink-0">
+      <div className="flex lg:hidden gap-2 pr-6 flex-shrink-0">
         {TABS.map((tab) => (
           <button
             key={tab.key}
@@ -70,7 +70,7 @@ export default function Incidents() {
       </div>
 
       {/* MOBILE: only the active tab's panel, full width */}
-      <div className="flex md:hidden flex-1 min-h-0 pr-6">
+      <div className="flex lg:hidden flex-1 min-h-0 pr-6">
         {activeTab === "analyzer" && (
           <div className="w-full overflow-y-auto">
             <IncidentAnalyzer />
@@ -89,7 +89,7 @@ export default function Incidents() {
       </div>
 
       {/* DESKTOP: original 3-column layout, hidden on mobile */}
-      <div className="hidden md:flex gap-4 flex-1 min-h-0">
+      <div className="hidden lg:flex gap-4 flex-1 min-h-0">
         <div className="w-[480px] flex-shrink-0 overflow-y-auto">
           <IncidentAnalyzer />
         </div>

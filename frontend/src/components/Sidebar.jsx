@@ -54,7 +54,7 @@ export default function Sidebar() {
     {/* MOBILE BACKDROP — tap to close */}
     {mobileNavOpen && (
       <div
-        className="fixed inset-0 bg-black/50 z-40 md:hidden"
+        className="fixed inset-0 bg-black/50 z-40 lg:hidden"
         onClick={() => setMobileNavOpen(false)}
       />
     )}
@@ -62,12 +62,12 @@ export default function Sidebar() {
     <aside
       className={`
         fixed md:static top-0 left-0 z-50
-        w-72 ${collapsed ? "md:w-18" : "md:w-72"}
+        w-72 ${collapsed ? "lg:w-18" : "lg:w-72"}
         h-full
         bg-white dark:bg-slate-950
         border-r border-slate-200 dark:border-slate-800
         transition-transform md:transition-all duration-300
-        ${mobileNavOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0
+        ${mobileNavOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0
         p-4
         flex flex-col
       `}

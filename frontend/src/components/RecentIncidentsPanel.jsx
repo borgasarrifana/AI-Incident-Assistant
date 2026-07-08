@@ -93,7 +93,7 @@ if (collapsed) {
   return (
     // h-full fills the flex parent's height; flex-col lets header/filters stay fixed
     // while the list scrolls
-    <div className="w-full md:w-80 flex-shrink-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl md:rounded-l-2xl md:rounded-r-none md:border-r-0 flex flex-col h-full overflow-hidden">
+    <div className="w-full lg:w-80 flex-shrink-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl lg:rounded-l-2xl lg:rounded-r-none lg:border-r-0 flex flex-col h-full overflow-hidden">
 
       {/* HEADER — fixed, never scrolls */}
       <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between flex-shrink-0">
@@ -139,7 +139,7 @@ if (collapsed) {
 
           <button
             onClick={() => setCollapsed(true)}
-            className="hidden md:inline-flex p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition"
+            className="hidden lg:inline-flex p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition"
             title="Collapse"
           >
             <ChevronRight size={14} />
