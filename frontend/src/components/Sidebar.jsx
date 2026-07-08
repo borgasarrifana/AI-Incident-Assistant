@@ -179,7 +179,7 @@ export default function Sidebar() {
             </Tooltip>
           ) : (
             <button
-              onClick={logout}
+              onClick={handleLogout}
               className="flex items-center justify-center gap-2 p-3 rounded-xl bg-red-600 hover:bg-red-700 text-white flex-1"
             >
               <LogOut size={18} />
