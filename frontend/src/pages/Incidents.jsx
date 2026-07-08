@@ -50,7 +50,8 @@ export default function Incidents() {
           <StatPill icon={<ShieldAlert size={15} className="text-red-500 flex-shrink-0" />}   label="Critical" value={critical} color="border-red-200 dark:border-red-500/20 bg-red-50 dark:bg-red-500/5 flex-shrink-0" />
           <StatPill icon={<CheckCircle2 size={15} className="text-green-500 flex-shrink-0" />} label="Resolved" value={resolved} color="border-green-200 dark:border-green-500/20 bg-green-50 dark:bg-green-500/5 flex-shrink-0" />
         </div>
-
+      </div>
+      
       {/* MOBILE TABS — hidden on desktop */}
       <div className="flex md:hidden gap-2 pr-6 flex-shrink-0">
         {TABS.map((tab) => (
