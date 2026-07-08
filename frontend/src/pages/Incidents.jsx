@@ -25,10 +25,10 @@ export default function Incidents() {
   const resolved = incidents.filter((i) => i.status === "Resolved").length;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-5rem)] gap-4 overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-5rem)] gap-4 overflow-hidden -mr-6">
 
       {/* PAGE HEADER + QUICK STATS */}
-      <div className="flex items-center justify-between flex-shrink-0">
+      <div className="flex items-center justify-between flex-shrink-0 pr-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Incidents</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
