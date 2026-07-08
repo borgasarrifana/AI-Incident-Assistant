@@ -1,4 +1,4 @@
-export function generateInsights(history = []) {
+export function generateInsights(history = [], knownAssignees = []) {
   const totalIncidents = history.length;
 
   const criticalIncidents = history.filter(
@@ -22,7 +22,6 @@ export function generateInsights(history = []) {
   const rootCauseCounts = {};
   history.forEach((incident) => {
     const cause = incident.result?.rootCause || "Unknown";
-    // Truncate long strings so chart labels stay readable
     const label =
       cause.length > 40 ? cause.slice(0, 37) + "..." : cause;
     rootCauseCounts[label] = (rootCauseCounts[label] || 0) + 1;
@@ -32,15 +31,19 @@ export function generateInsights(history = []) {
     .sort((a, b) => b.value - a.value)
     .slice(0, 5);
 
-  // Assignee workload distribution
+  // Assignee workload distribution — seed with every known team member at 0,
+  // then add real incident counts on top, so idle assignees are still visible
   const assigneeCounts = {};
+  knownAssignees.forEach((a) => {
+    assigneeCounts[a.name] = 0;
+  });
   history.forEach((incident) => {
     const assignee = incident.result?.assignee || "Unassigned";
     assigneeCounts[assignee] = (assigneeCounts[assignee] || 0) + 1;
   });
-  const assigneeData = Object.entries(assigneeCounts).map(
-    ([name, value]) => ({ name, value })
-  );
+  const assigneeData = Object.entries(assigneeCounts)
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value);
 
   // Availability: 100% minus a penalty per critical incident
   const availability =
@@ -52,7 +55,6 @@ export function generateInsights(history = []) {
       : "100.00";
 
   // MTTR: average time to resolve (minutes) — calculated from real data
-  // Falls back to a reasonable placeholder if no resolved incidents with timestamps exist
   const resolvedWithTimes = history.filter(
     (i) => i.status === "Resolved" && i.resolvedAt && i.createdAt
   );
@@ -66,7 +68,7 @@ export function generateInsights(history = []) {
           }, 0) / resolvedWithTimes.length
         )
       : resolvedIncidents > 0
-      ? 18  // reasonable placeholder when we have resolved incidents but no timestamps
+      ? 18
       : null;
 
   // MTTD: placeholder — would need detection timestamps to calculate

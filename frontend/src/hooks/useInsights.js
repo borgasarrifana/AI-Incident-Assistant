@@ -1,11 +1,14 @@
 import { useMemo } from "react";
 import { useIncident } from "../context/IncidentContext";
+import { useAssignees } from "../context/AssigneeContext";
 import { generateInsights } from "../utils/insightsEngine";
 
 export default function useInsights() {
   const { incidents } = useIncident();
+  const { assignees } = useAssignees();
 
-  // useMemo now correctly depends on the incidents array from context,
-  // so it recomputes whenever incidents change — no more stale localStorage reads.
-  return useMemo(() => generateInsights(incidents), [incidents]);
+  return useMemo(
+    () => generateInsights(incidents, assignees),
+    [incidents, assignees]
+  );
 }
