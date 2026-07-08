@@ -45,7 +45,7 @@ export default function Incidents() {
       </div>
 
       {/* MAIN ROW — fills remaining height, nothing overflows */}
-      <div className="flex gap-4 flex-1 min-h-0 -mr-6">
+      <div className="flex gap-4 flex-1 min-h-0">
 
         {/* LEFT: Incident Analyzer — fixed width, scrollable */}
         <div className="w-[480px] flex-shrink-0 overflow-y-auto">
