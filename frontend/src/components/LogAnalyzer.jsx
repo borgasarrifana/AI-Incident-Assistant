@@ -76,8 +76,9 @@ export default function LogAnalyzer() {
     } catch (err) {
       console.error(err);
       const message =
-        err.response?.data?.detail ||
-        "Failed to analyze logs. Check your backend connection.";
+        err.code === "ECONNABORTED"
+          ? "The server is waking up from idle — this can take up to a minute. Please try again."
+          : err.response?.data?.detail || "Failed to analyze logs. Check your backend connection.";
       setError(message);
       addNotification("Log analysis failed", "error");
       setResult(null);

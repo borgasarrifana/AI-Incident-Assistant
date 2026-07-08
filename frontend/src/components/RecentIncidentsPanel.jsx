@@ -12,6 +12,9 @@ import {
 } from "lucide-react";
 import { useIncident } from "../context/IncidentContext";
 import { motion, AnimatePresence } from "framer-motion";
+import IncidentDetailModal from "./IncidentDetailModal";
+
+const [detailIncident, setDetailIncident] = useState(null);
 
 const SEVERITY_STYLES = {
   Critical: "bg-red-500/20 text-red-400 border-red-500/30",
@@ -55,37 +58,38 @@ export default function RecentIncidentsPanel() {
   });
 
   // COLLAPSED STATE — shows counter badge
-  if (collapsed) {
-    return (
+if (collapsed) {
+  return (
+    <div className="relative flex-shrink-0">
       <button
         onClick={() => setCollapsed(false)}
-        className="relative flex flex-col items-center gap-3 px-2 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700 transition flex-shrink-0"
+        className="flex flex-col items-center gap-3 px-3 pt-5 pb-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-l-2xl rounded-r-none border-r-0 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700 transition h-full"
       >
-        {/* OPEN INCIDENTS BADGE */}
-        {openCount > 0 && (
-          <span className="absolute -top-2 -right-2 min-w-[20px] h-5 px-1 flex items-center justify-center rounded-full bg-yellow-500 text-black text-xs font-bold">
-            {openCount}
-          </span>
-        )}
-
         <ChevronLeft size={16} />
 
         <span className="text-xs [writing-mode:vertical-rl] tracking-wide">
           Recent Incidents
         </span>
 
-        {/* TOTAL COUNT */}
         <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">
           {incidents.length}
         </span>
       </button>
-    );
-  }
+
+      {/* OPEN INCIDENTS BADGE — positioned inside the button's bounds, not overlapping the edge */}
+      {openCount > 0 && (
+        <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-yellow-500 text-black text-[10px] font-bold pointer-events-none">
+          {openCount}
+        </span>
+      )}
+    </div>
+  );
+}
 
   return (
     // h-full fills the flex parent's height; flex-col lets header/filters stay fixed
     // while the list scrolls
-    <div className="w-80 flex-shrink-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl flex flex-col h-full overflow-hidden">
+    <div className="w-80 flex-shrink-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-l-2xl rounded-r-none border-r-0 flex flex-col h-full overflow-hidden">
 
       {/* HEADER — fixed, never scrolls */}
       <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between flex-shrink-0">
@@ -211,11 +215,12 @@ export default function RecentIncidentsPanel() {
           filteredIncidents.map((item) => (
             <div
               key={item.id}
-              onClick={() =>
+              onClick={() => {
                 setSelectedIncident(
                   selectedIncident?.id === item.id ? null : item
-                )
-              }
+                );
+                setDetailIncident(item);
+              }}
               className={`p-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors space-y-2 ${
                 selectedIncident?.id === item.id
                   ? "bg-slate-100 dark:bg-slate-800 border-l-2 border-l-blue-500"
@@ -273,6 +278,11 @@ export default function RecentIncidentsPanel() {
           ))
         )}
       </div>
+      {/* INCIDENT DETAIL MODAL */}
+      <IncidentDetailModal
+        incident={selectedIncident}
+        onClose={() => setSelectedIncident(null)}
+      />
     </div>
   );
 }
