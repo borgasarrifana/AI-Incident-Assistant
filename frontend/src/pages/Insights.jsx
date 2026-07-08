@@ -12,7 +12,7 @@ import DailySummaryCard from "../components/insights/DailySummaryCard";
 import ReliabilityMetrics from "../components/insights/ReliabilityMetrics";
 import IncidentHeatmap from "../components/insights/IncidentHeatmap";
 import IncidentCorrelationGraph from "../components/insights/IncidentCorrelationGraph";
-import IncidentGeoMap from "../components/insights/IncidentGeoMap";
+import IncidentMap from "../components/IncidentMap";
 
 export default function Insights() {
   // Get incidents from context (source of truth)
@@ -37,7 +37,7 @@ export default function Insights() {
   }
 
   return (
-    <div className="space-y-4" pr-4>
+    <div className="space-y-4 pr-4">
 
       <KPICards {...insights} />
 
