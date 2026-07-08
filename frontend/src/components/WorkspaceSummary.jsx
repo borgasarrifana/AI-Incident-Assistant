@@ -1,15 +1,15 @@
-import {
-  useWorkspace,
-} from "../context/WorkspaceContext";
-
-import {
-  useMetrics,
-} from "../context/MetricsContext";
+import { useWorkspace } from "../context/WorkspaceContext";
+import { useIncident } from "../context/IncidentContext";
 
 export default function WorkspaceSummary() {
 
   const { activeWorkspace } = useWorkspace();
-  const { metrics } = useMetrics();
+  const { incidents } = useIncident();
+
+  const today = new Date().toDateString();
+  const incidentsToday = incidents.filter(
+    (i) => new Date(i.createdAt).toDateString() === today
+  ).length;
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xl">
@@ -25,7 +25,7 @@ export default function WorkspaceSummary() {
           had
           {" "}
           <span className="text-red-500 dark:text-red-400 font-bold">
-            {metrics.incidents}
+            {incidentsToday}
           </span>
           {" "}
           incidents today.
