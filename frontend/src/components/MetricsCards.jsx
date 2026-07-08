@@ -70,7 +70,7 @@ export default function MetricsCards() {
         return (
           <div
             key={metric.title}
-            className="bg-white dark:bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl"
+            className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xl"
           >
 
             <div className="flex items-center justify-between">

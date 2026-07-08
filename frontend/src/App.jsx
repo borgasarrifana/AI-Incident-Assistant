@@ -7,11 +7,13 @@ import CommandPalette from "./components/CommandPalette";
 import { SidebarProvider } from "./context/SidebarContext";
 import { useIncident } from "./context/IncidentContext";
 import IncidentDetailModal from "./components/IncidentDetailModal";
+import { AssigneeProvider } from "./context/AssigneeContext";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Incidents = lazy(() => import("./pages/Incidents"));
 const Logs = lazy(() => import("./pages/Logs"));
 const Insights = lazy(() => import("./pages/Insights"));
+const Team = lazy(() => import("./pages/Team"));
 
 function AppShell() {
   const { selectedIncident, setSelectedIncident } = useIncident();
@@ -51,13 +53,16 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/team" element={<Team />} />
 
       <Route
         path="*"
         element={
           <ProtectedRoute>
             <SidebarProvider>
-              <AppShell />
+              <AssigneeProvider>
+                <AppShell />
+              </AssigneeProvider>
             </SidebarProvider>
           </ProtectedRoute>
         }

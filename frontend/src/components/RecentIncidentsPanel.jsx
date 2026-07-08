@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useIncident } from "../context/IncidentContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "../context/AuthContext";
 
 const SEVERITY_STYLES = {
   Critical: "bg-red-500/20 text-red-400 border-red-500/30",
@@ -33,6 +34,7 @@ export default function RecentIncidentsPanel() {
   const [severityFilter, setSeverityFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
   const [detailIncident, setDetailIncident] = useState(null);
+  const { user } = useAuth();
 
   const {
     incidents,
@@ -116,7 +118,7 @@ if (collapsed) {
             <Search size={14} />
           </button>
 
-          {incidents.length > 0 && (
+          {incidents.length > 0 && user?.role === "admin" && (
             <button
               onClick={() => {
                 if (window.confirm("Clear all incident history?")) {

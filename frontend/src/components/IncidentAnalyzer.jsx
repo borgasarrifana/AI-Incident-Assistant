@@ -6,6 +6,7 @@ import { useMetrics } from "../context/MetricsContext";
 import { useAudit } from "../context/AuditContext";
 import { useAuth } from "../context/AuthContext";
 import { useIncident } from "../context/IncidentContext";
+import { useAssignees } from "../context/AssigneeContext";
 import {
   Loader2,
   MapPin,
@@ -174,6 +175,7 @@ export default function IncidentAnalyzer() {
   const { addAuditLog }        = useAudit();
   const { user }               = useAuth();
   const { addIncident }        = useIncident();
+  const { assignees } = useAssignees();
 
   useEffect(() => {
     if (locationQuery.trim().length < 3) { setLocationSuggestions([]); return; }
@@ -488,9 +490,9 @@ export default function IncidentAnalyzer() {
             className={inputCls}
           >
             <option value="Unassigned">Unassigned</option>
-            <option value="John Smith">John Smith</option>
-            <option value="Sarah Connor">Sarah Connor</option>
-            <option value="Mike Johnson">Mike Johnson</option>
+            {assignees.map((a) => (
+              <option key={a.id} value={a.name}>{a.name}</option>
+            ))}
           </select>
         </div>
 

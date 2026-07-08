@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { ChevronDown, Plus } from "lucide-react";
 import { useWorkspace } from "../context/WorkspaceContext";
+import { useAuth } from "../context/AuthContext";
 
 export default function WorkspaceSwitcher({ collapsed }) {
 
   const { workspaces, activeWorkspace, setActiveWorkspace, createWorkspace } = useWorkspace();
   const [open, setOpen] = useState(false);
   const [newWorkspace, setNewWorkspace] = useState("");
+  const { user } = useAuth();
 
   const handleCreate = () => {
     if (!newWorkspace) return;
@@ -16,7 +18,7 @@ export default function WorkspaceSwitcher({ collapsed }) {
   };
 
   return (
-    <div className="relative mb-6">
+    <div className="relative mb-4">
 
       <button
         onClick={() => setOpen(!open)}
@@ -75,7 +77,7 @@ export default function WorkspaceSwitcher({ collapsed }) {
               </button>
             ))}
           </div>
-
+          {user?.role === "admin" && (
           <div className="border-t border-slate-200 dark:border-slate-800 p-3">
             <div className="flex gap-2">
               <input
@@ -93,6 +95,7 @@ export default function WorkspaceSwitcher({ collapsed }) {
               </button>
             </div>
           </div>
+          )}
         </div>
       )}
     </div>

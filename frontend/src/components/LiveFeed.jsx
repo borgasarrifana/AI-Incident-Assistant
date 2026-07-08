@@ -45,33 +45,15 @@ export default function LiveFeed() {
 
   return (
 
-    <div
-      className="
-        bg-white dark:bg-slate-900
-        border border-slate-800
-        rounded-2xl
-        p-4
-      "
-    >
+    <div className=" bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl p-4">
 
-      <h3
-        className="
-          text-white font-semibold
-          mb-4
-        "
-      >
+      <h3 className="text-white font-semibold mb-4">
         Live Feed
       </h3>
 
       <div className="space-y-2">
-
         {messages.length === 0 && (
-
-          <div
-            className="
-              text-slate-500 text-sm
-            "
-          >
+          <div className="text-slate-500 text-sm">
             Waiting for live events...
           </div>
 
@@ -82,12 +64,7 @@ export default function LiveFeed() {
 
             <div
               key={index}
-              className="
-                text-sm text-slate-300
-                bg-slate-950
-                rounded-lg p-2
-              "
-            >
+              className="text-sm text-slate-300 bg-slate-950 rounded-lg p-2">
               {msg}
             </div>
           )

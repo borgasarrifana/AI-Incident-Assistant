@@ -9,6 +9,7 @@ import ThemeToggle from "./ThemeToggle";
 import { useSidebar } from "../context/SidebarContext";
 import Tooltip from "./Tooltip";
 import { useTheme } from "../context/ThemeContext";
+import { Users } from "lucide-react";
 import {
   LayoutDashboard,
   AlertTriangle,
@@ -39,6 +40,7 @@ export default function Sidebar() {
     { name: "Incidents", path: "/incidents", icon: AlertTriangle, roles: ["admin", "analyst"] },
     { name: "Logs", path: "/logs", icon: FileText, roles: ["admin", "analyst"] },
     { name: "AI Insights", path: "/insights", icon: BrainCircuit, roles: ["admin", "analyst"] },
+    { name: "Team", path: "/team", icon: Users, roles: ["admin"], },
   ];
 
   return (
