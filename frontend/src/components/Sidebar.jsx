@@ -30,6 +30,7 @@ export default function Sidebar() {
   const [showNotifications, setShowNotifications] = useState(false);
   const { darkMode } = useTheme();
   const darkModeLabel = darkMode ? "Switch to light mode" : "Switch to dark mode";
+  const { collapsed, setCollapsed, mobileNavOpen, setMobileNavOpen } = useSidebar();
   const unreadCount =
     notifications.filter(
       (n) => !n.read
@@ -50,11 +51,26 @@ export default function Sidebar() {
   };
 
   return (
-
+    <>
+    {/* MOBILE BACKDROP — tap to close */}
+    {mobileNavOpen && (
+      <div
+        className="fixed inset-0 bg-black/50 z-40 md:hidden"
+        onClick={() => setMobileNavOpen(false)}
+      />
+    )}
+    
     <aside
       className={`
-        ${collapsed ? "w-18" : "w-72"}
-        h-full bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 p-4 flex flex-col
+        fixed md:static top-0 left-0 z-50
+        w-72 ${collapsed ? "md:w-18" : "md:w-72"}
+        h-full
+        bg-white dark:bg-slate-950
+        border-r border-slate-200 dark:border-slate-800
+        transition-transform md:transition-all duration-300
+        ${mobileNavOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0
+        p-4
+        flex flex-col
       `}
     >
 
@@ -98,6 +114,7 @@ export default function Sidebar() {
               const link = (
                 <Link
                   to={item.path}
+                  onClick={() => setMobileNavOpen(false)}
                   className={`
                     flex items-center
                     gap-3 p-3 rounded-xl
@@ -190,5 +207,6 @@ export default function Sidebar() {
         </div>
       </div>
     </aside>
+  </>
   );
 }

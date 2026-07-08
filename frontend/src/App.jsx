@@ -9,6 +9,8 @@ import { useIncident } from "./context/IncidentContext";
 import IncidentDetailModal from "./components/IncidentDetailModal";
 import { AssigneeProvider } from "./context/AssigneeContext";
 import PageSkeleton from "./components/PageSkeleton";
+import { useSidebar } from "./context/SidebarContext";
+import { Menu } from "lucide-react";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Incidents = lazy(() => import("./pages/Incidents"));
@@ -18,14 +20,29 @@ const Team = lazy(() => import("./pages/Team"));
 
 function AppShell() {
   const { selectedIncident, setSelectedIncident } = useIncident();
+  const { setMobileNavOpen } = useSidebar();
 
   return (
     <div className="flex h-screen overflow-hidden bg-white dark:bg-slate-950 text-slate-900 dark:text-white">
       <CommandPalette />
       <Sidebar />
 
-      <div className="flex-1 overflow-y-auto p-4">
-        <Suspense fallback={<PageSkeleton />}>
+      <div className="flex-1 overflow-y-auto p-4 flex flex-col">
+
+        {/* MOBILE TOP BAR — hamburger + title, hidden on desktop */}
+        <div className="flex items-center gap-3 mb-4 md:hidden flex-shrink-0">
+          <button
+            onClick={() => setMobileNavOpen(true)}
+            className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-white"
+          >
+            <Menu size={20} />
+          </button>
+          <span className="font-bold text-slate-900 dark:text-white">AI Ops</span>
+        </div>
+
+        <Suspense
+          fallback={<PageSkeleton />}
+        >
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/incidents" element={<Incidents />} />
@@ -36,7 +53,6 @@ function AppShell() {
         </Suspense>
       </div>
 
-      {/* GLOBAL incident detail modal — works from any page */}
       <IncidentDetailModal
         incident={selectedIncident}
         onClose={() => setSelectedIncident(null)}

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import IncidentAnalyzer from "../components/IncidentAnalyzer";
 import IncidentMap from "../components/IncidentMap";
 import RecentIncidentsPanel from "../components/RecentIncidentsPanel";
@@ -16,8 +17,15 @@ function StatPill({ icon, label, value, color }) {
   );
 }
 
+const TABS = [
+  { key: "analyzer", label: "Analyzer" },
+  { key: "map", label: "Map" },
+  { key: "recent", label: "Recent" },
+];
+
 export default function Incidents() {
   const { incidents } = useIncident();
+  const [activeTab, setActiveTab] = useState("analyzer");
 
   const total    = incidents.length;
   const open     = incidents.filter((i) => i.status === "Open").length;
@@ -25,10 +33,10 @@ export default function Incidents() {
   const resolved = incidents.filter((i) => i.status === "Resolved").length;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-5rem)] gap-4 overflow-hidden -mr-4">
+    <div className="flex flex-col h-[calc(100vh-5rem)] gap-4 overflow-hidden -mr-6">
 
       {/* PAGE HEADER + QUICK STATS */}
-      <div className="flex items-center justify-between flex-shrink-0 pr-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between flex-shrink-0 pr-6 gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Incidents</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -36,7 +44,7 @@ export default function Incidents() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <StatPill icon={<Activity size={15} className="text-blue-500" />}    label="Total"    value={total}    color="border-blue-200 dark:border-blue-500/20 bg-blue-50 dark:bg-blue-500/5" />
           <StatPill icon={<AlertTriangle size={15} className="text-yellow-500" />} label="Open"  value={open}     color="border-yellow-200 dark:border-yellow-500/20 bg-yellow-50 dark:bg-yellow-500/5" />
           <StatPill icon={<ShieldAlert size={15} className="text-red-500" />}   label="Critical" value={critical} color="border-red-200 dark:border-red-500/20 bg-red-50 dark:bg-red-500/5" />
@@ -44,22 +52,51 @@ export default function Incidents() {
         </div>
       </div>
 
-      {/* MAIN ROW — fills remaining height, nothing overflows */}
-      <div className="flex gap-4 flex-1 min-h-0">
+      {/* MOBILE TABS — hidden on desktop */}
+      <div className="flex md:hidden gap-2 pr-6 flex-shrink-0">
+        {TABS.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`flex-1 py-2 rounded-xl text-sm font-medium transition ${
+              activeTab === tab.key
+                ? "bg-blue-600 text-white"
+                : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-        {/* LEFT: Incident Analyzer — fixed width, scrollable */}
+      {/* MOBILE: only the active tab's panel, full width */}
+      <div className="flex md:hidden flex-1 min-h-0 pr-6">
+        {activeTab === "analyzer" && (
+          <div className="w-full overflow-y-auto">
+            <IncidentAnalyzer />
+          </div>
+        )}
+        {activeTab === "map" && (
+          <div className="w-full h-full">
+            <IncidentMap incidents={incidents} fullHeight />
+          </div>
+        )}
+        {activeTab === "recent" && (
+          <div className="w-full h-full">
+            <RecentIncidentsPanel forceExpanded />
+          </div>
+        )}
+      </div>
+
+      {/* DESKTOP: original 3-column layout, hidden on mobile */}
+      <div className="hidden md:flex gap-4 flex-1 min-h-0">
         <div className="w-[480px] flex-shrink-0 overflow-y-auto">
           <IncidentAnalyzer />
         </div>
-
-        {/* CENTRE: Map — fills all remaining width, full height */}
         <div className="flex-1 min-w-0">
           <IncidentMap incidents={incidents} fullHeight />
         </div>
-
-        {/* RIGHT: Recent Incidents Panel — fixed width, scrolls internally */}
         <RecentIncidentsPanel />
-
       </div>
     </div>
   );

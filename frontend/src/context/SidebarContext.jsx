@@ -5,10 +5,15 @@ const SidebarContext = createContext();
 export function SidebarProvider({ children }) {
   const [collapsed, setCollapsed] = useState(false);
   const [rightPanelCollapsed, setRightPanelCollapsed] = useState(true);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
     <SidebarContext.Provider
-      value={{ collapsed, setCollapsed, rightPanelCollapsed, setRightPanelCollapsed }}
+      value={{
+        collapsed, setCollapsed,
+        rightPanelCollapsed, setRightPanelCollapsed,
+        mobileNavOpen, setMobileNavOpen,
+      }}
     >
       {children}
     </SidebarContext.Provider>
