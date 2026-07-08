@@ -5,19 +5,18 @@ import {
   ShieldAlert,
   BrainCircuit,
 } from "lucide-react";
+import { useIncident } from "../context/IncidentContext";
 
 function Counter({ target }) {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
     let start = 0;
-
     const duration = 1000;
-    const increment = target / (duration / 16);
+    const increment = target / (duration / 16) || target;
 
     const timer = setInterval(() => {
       start += increment;
-
       if (start >= target) {
         setCount(target);
         clearInterval(timer);
@@ -33,69 +32,69 @@ function Counter({ target }) {
 }
 
 export default function MetricsCards() {
+  const { incidents } = useIncident();
+
+  const totalIncidents = incidents.length;
+  const criticalCount = incidents.filter((i) => i.result?.severity === "Critical").length;
+  const openCount = incidents.filter((i) => i.status === "Open").length;
+  const resolvedCount = incidents.filter((i) => i.status === "Resolved").length;
+  const health = totalIncidents === 0 ? 100 : Math.max(0, 100 - Math.round((criticalCount / totalIncidents) * 15));
+
   const metrics = [
     {
-      title: "Incidents",
-      value: 128,
+      title: "Total Incidents",
+      value: totalIncidents,
       icon: AlertTriangle,
-      color: "text-red-400",
+      color: "text-red-500 dark:text-red-400",
     },
     {
-      title: "AI Insights",
-      value: 432,
+      title: "Open",
+      value: openCount,
       icon: BrainCircuit,
-      color: "text-blue-400",
+      color: "text-yellow-500 dark:text-yellow-400",
     },
     {
-      title: "Critical Alerts",
-      value: 12,
+      title: "Critical",
+      value: criticalCount,
       icon: ShieldAlert,
-      color: "text-yellow-400",
+      color: "text-orange-500 dark:text-orange-400",
     },
     {
       title: "System Health",
-      value: 99,
+      value: health,
       icon: Activity,
-      color: "text-green-400",
+      color: "text-green-500 dark:text-green-400",
       suffix: "%",
     },
   ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
-
       {metrics.map((metric) => {
         const Icon = metric.icon;
 
         return (
           <div
             key={metric.title}
-            className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xl"
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xl"
           >
-
             <div className="flex items-center justify-between">
-
               <div>
-                <p className="text-sm text-slate-400">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   {metric.title}
                 </p>
-
                 <h2 className={`text-4xl font-bold mt-3 ${metric.color}`}>
                   <Counter target={metric.value} />
                   {metric.suffix || ""}
                 </h2>
               </div>
-
-              <div className="p-3 rounded-xl bg-slate-800">
+              <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800">
                 <Icon className={`w-6 h-6 ${metric.color}`} />
               </div>
-
             </div>
-
           </div>
         );
       })}
-
     </div>
   );
 }
