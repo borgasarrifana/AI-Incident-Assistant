@@ -136,7 +136,7 @@ function Legend() {
 
 export default function IncidentMap({ incidents = [], fullHeight = false }) {
   const { setSelectedIncident } = useIncident();
-  const { collapsed } = useSidebar();
+  const { collapsed, rightPanelCollapsed } = useSidebar();
   const { darkMode } = useTheme();
 
   const tiles = darkMode ? TILE_LAYERS.dark : TILE_LAYERS.light;
@@ -150,7 +150,7 @@ export default function IncidentMap({ incidents = [], fullHeight = false }) {
         zoomControl={false}
         className="h-full w-full z-0 bg-slate-100 dark:bg-slate-950"
       >
-        <ResizeMap resizeTrigger={collapsed} />
+        <ResizeMap resizeTrigger={`${collapsed}-${rightPanelCollapsed}`} />
         <FitToIncidents incidents={incidents} />
         <ZoomControl position="topright" />
 

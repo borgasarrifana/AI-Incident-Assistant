@@ -13,6 +13,7 @@ import {
 import { useIncident } from "../context/IncidentContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
+import { useSidebar } from "../context/SidebarContext";
 
 const SEVERITY_STYLES = {
   Critical: "bg-red-500/20 text-red-400 border-red-500/30",
@@ -28,7 +29,7 @@ const STATUS_ICON = {
 };
 
 export default function RecentIncidentsPanel() {
-  const [collapsed, setCollapsed] = useState(false);
+  const { rightPanelCollapsed: collapsed, setRightPanelCollapsed: setCollapsed } = useSidebar();
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [severityFilter, setSeverityFilter] = useState("All");
