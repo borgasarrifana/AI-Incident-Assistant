@@ -14,8 +14,6 @@ import { useIncident } from "../context/IncidentContext";
 import { motion, AnimatePresence } from "framer-motion";
 import IncidentDetailModal from "./IncidentDetailModal";
 
-const [detailIncident, setDetailIncident] = useState(null);
-
 const SEVERITY_STYLES = {
   Critical: "bg-red-500/20 text-red-400 border-red-500/30",
   High: "bg-orange-500/20 text-orange-400 border-orange-500/30",
@@ -35,6 +33,7 @@ export default function RecentIncidentsPanel() {
   const [showSearch, setShowSearch] = useState(false);
   const [severityFilter, setSeverityFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [detailIncident, setDetailIncident] = useState(null);
 
   const {
     incidents,
