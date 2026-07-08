@@ -129,28 +129,53 @@ export default function Sidebar() {
 
         {/* ACTIONS */}
         <div className={`flex ${collapsed ? "flex-col" : "items-center"} gap-3`}>
-          <ThemeToggle collapsed={collapsed} />
-          <NotificationPopover
-            collapsed={collapsed}
-            onOpenCenter={() => setShowNotifications(true)}
-          />
+
+          {collapsed ? (
+            <Tooltip label={darkModeLabel} side="right">
+              <ThemeToggle collapsed={collapsed} />
+            </Tooltip>
+          ) : (
+            <ThemeToggle collapsed={collapsed} />
+          )}
+
+          {collapsed ? (
+            <Tooltip label="Notifications" side="right">
+              <NotificationPopover
+                collapsed={collapsed}
+                onOpenCenter={() => setShowNotifications(true)}
+              />
+            </Tooltip>
+          ) : (
+            <NotificationPopover
+              collapsed={collapsed}
+              onOpenCenter={() => setShowNotifications(true)}
+            />
+          )}
+
           <NotificationCenter
             open={showNotifications}
             onClose={() => setShowNotifications(false)}
           />
-          <button
-            onClick={logout}
-            className={`
-              flex items-center justify-center gap-2
-              p-3 rounded-xl
-              bg-red-600 hover:bg-red-700
-              text-white
-              ${collapsed ? "w-full" : "flex-1"}
-            `}
-          >
-            <LogOut size={18} />
-            {!collapsed && <span>Logout</span>}
-          </button>
+
+          {collapsed ? (
+            <Tooltip label="Logout" side="right">
+              <button
+                onClick={logout}
+                className="flex items-center justify-center gap-2 p-3 rounded-xl bg-red-600 hover:bg-red-700 text-white w-full"
+              >
+                <LogOut size={18} />
+              </button>
+            </Tooltip>
+          ) : (
+            <button
+              onClick={logout}
+              className="flex items-center justify-center gap-2 p-3 rounded-xl bg-red-600 hover:bg-red-700 text-white flex-1"
+            >
+              <LogOut size={18} />
+              <span>Logout</span>
+            </button>
+          )}
+
         </div>
       </div>
     </aside>
