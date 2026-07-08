@@ -2,59 +2,63 @@ import {
   createContext,
   useContext,
   useState,
+  useEffect,
   useCallback,
 } from "react";
+import {
+  fetchIncidents,
+  createIncidentAPI,
+  updateIncidentStatusAPI,
+  clearIncidentsAPI,
+} from "../api";
 
 const IncidentContext = createContext();
 
-const STORAGE_KEY = "incidentHistory";
-const MAX_HISTORY = 100;
-
-function loadFromStorage() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    localStorage.removeItem(STORAGE_KEY);
-    return [];
-  }
-}
-
-function saveToStorage(incidents) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(incidents));
-  } catch (e) {
-    console.error("Failed to persist incidents to localStorage", e);
-  }
-}
-
 export function IncidentProvider({ children }) {
-  const [incidents, setIncidents] = useState(() => loadFromStorage());
+  const [incidents, setIncidents] = useState([]);
   const [selectedIncident, setSelectedIncident] = useState(null);
 
-  const addIncident = useCallback((incident) => {
-    setIncidents((prev) => {
-      const updated = [incident, ...prev].slice(0, MAX_HISTORY);
-      saveToStorage(updated);
-      return updated;
-    });
+  // Load incidents from the backend on first mount
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetchIncidents();
+        if (!cancelled) setIncidents(res.data);
+      } catch (e) {
+        console.error("Failed to load incidents", e);
+      }
+    })();
+    return () => { cancelled = true; };
   }, []);
 
-  const updateIncidentStatus = useCallback((id, status) => {
-    setIncidents((prev) => {
-      const updated = prev.map((inc) =>
-        inc.id === id ? { ...inc, status } : inc
+  const addIncident = useCallback(async (incident) => {
+    try {
+      const res = await createIncidentAPI(incident);
+      setIncidents((prev) => [res.data, ...prev]);
+    } catch (e) {
+      console.error("Failed to save incident", e);
+    }
+  }, []);
+
+  const updateIncidentStatus = useCallback(async (id, status) => {
+    try {
+      const res = await updateIncidentStatusAPI(id, status);
+      setIncidents((prev) =>
+        prev.map((inc) => (inc.id === id ? res.data : inc))
       );
-      saveToStorage(updated);
-      return updated;
-    });
+    } catch (e) {
+      console.error("Failed to update incident status", e);
+    }
   }, []);
 
-  const clearIncidents = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
-    setIncidents([]);
+  const clearIncidents = useCallback(async () => {
+    try {
+      await clearIncidentsAPI();
+      setIncidents([]);
+    } catch (e) {
+      console.error("Failed to clear incidents", e);
+    }
   }, []);
 
   return (

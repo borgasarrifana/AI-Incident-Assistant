@@ -2,13 +2,29 @@ import axios from "axios";
 
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000",
-  timeout: 60000, // 60s — AI calls can be slow
+  timeout: 60000,
 });
 
-export const analyzeIncident = (text) =>
-  API.post("/incident/analyze", { text });
+// --- AI analysis ---
+export const analyzeIncident = (text) => API.post("/incident/analyze", { text });
+export const analyzeLogs = (text) => API.post("/logs/analyze", { text });
 
-export const analyzeLogs = (text) =>
-  API.post("/logs/analyze", { text });
+// --- Incidents CRUD ---
+export const fetchIncidents = () => API.get("/incidents/");
+export const createIncidentAPI = (incident) => API.post("/incidents/", incident);
+export const updateIncidentStatusAPI = (id, status) =>
+  API.patch(`/incidents/${id}/status`, { status });
+export const clearIncidentsAPI = () => API.delete("/incidents/");
+
+// --- Assignees CRUD ---
+export const fetchAssignees = () => API.get("/assignees/");
+export const createAssigneeAPI = (name) => API.post("/assignees/", { name });
+export const updateAssigneeAPI = (id, name) => API.put(`/assignees/${id}`, { name });
+export const deleteAssigneeAPI = (id) => API.delete(`/assignees/${id}`);
+
+// --- Workspaces CRUD ---
+export const fetchWorkspaces = () => API.get("/workspaces/");
+export const createWorkspaceAPI = (name) => API.post("/workspaces/", { name });
+export const deleteWorkspaceAPI = (id) => API.delete(`/workspaces/${id}`);
 
 export default API;

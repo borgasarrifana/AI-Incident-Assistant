@@ -1,42 +1,58 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import {
+  fetchAssignees,
+  createAssigneeAPI,
+  updateAssigneeAPI,
+  deleteAssigneeAPI,
+} from "../api";
 
 const AssigneeContext = createContext();
 
-const DEFAULT_ASSIGNEES = [
-  { id: "a1", name: "John Smith" },
-  { id: "a2", name: "Sarah Connor" },
-  { id: "a3", name: "Mike Johnson" },
-];
-
 export function AssigneeProvider({ children }) {
-  const [assignees, setAssignees] = useState(() => {
-    const saved = localStorage.getItem("assignees");
-    return saved ? JSON.parse(saved) : DEFAULT_ASSIGNEES;
-  });
+  const [assignees, setAssignees] = useState([]);
 
   useEffect(() => {
-    localStorage.setItem("assignees", JSON.stringify(assignees));
-  }, [assignees]);
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetchAssignees();
+        if (!cancelled) setAssignees(res.data);
+      } catch (e) {
+        console.error("Failed to load assignees", e);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
-  const addAssignee = (name) => {
+  const addAssignee = async (name) => {
     const trimmed = name.trim();
     if (!trimmed) return;
-    setAssignees((prev) => [
-      ...prev,
-      { id: `a${Date.now()}`, name: trimmed },
-    ]);
+    try {
+      const res = await createAssigneeAPI(trimmed);
+      setAssignees((prev) => [...prev, res.data]);
+    } catch (e) {
+      console.error("Failed to add assignee", e);
+    }
   };
 
-  const updateAssignee = (id, name) => {
+  const updateAssignee = async (id, name) => {
     const trimmed = name.trim();
     if (!trimmed) return;
-    setAssignees((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, name: trimmed } : a))
-    );
+    try {
+      const res = await updateAssigneeAPI(id, trimmed);
+      setAssignees((prev) => prev.map((a) => (a.id === id ? res.data : a)));
+    } catch (e) {
+      console.error("Failed to update assignee", e);
+    }
   };
 
-  const removeAssignee = (id) => {
-    setAssignees((prev) => prev.filter((a) => a.id !== id));
+  const removeAssignee = async (id) => {
+    try {
+      await deleteAssigneeAPI(id);
+      setAssignees((prev) => prev.filter((a) => a.id !== id));
+    } catch (e) {
+      console.error("Failed to remove assignee", e);
+    }
   };
 
   return (

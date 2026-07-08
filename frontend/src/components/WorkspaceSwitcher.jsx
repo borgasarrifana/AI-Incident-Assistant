@@ -35,7 +35,7 @@ export default function WorkspaceSwitcher({ collapsed }) {
         {!collapsed ? (
           <div className="min-w-0">
             <p className="text-xs text-slate-500 dark:text-slate-400">Workspace</p>
-            <p className="font-medium truncate">{activeWorkspace.name}</p>
+            <p className="font-medium truncate">{activeWorkspace ? activeWorkspace.name : "No workspace"}</p>
           </div>
         ) : (
           <div className="w-3 h-3 rounded-full bg-blue-500" />
