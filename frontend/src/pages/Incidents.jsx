@@ -44,13 +44,12 @@ export default function Incidents() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          <StatPill icon={<Activity size={15} className="text-blue-500" />}    label="Total"    value={total}    color="border-blue-200 dark:border-blue-500/20 bg-blue-50 dark:bg-blue-500/5" />
-          <StatPill icon={<AlertTriangle size={15} className="text-yellow-500" />} label="Open"  value={open}     color="border-yellow-200 dark:border-yellow-500/20 bg-yellow-50 dark:bg-yellow-500/5" />
-          <StatPill icon={<ShieldAlert size={15} className="text-red-500" />}   label="Critical" value={critical} color="border-red-200 dark:border-red-500/20 bg-red-50 dark:bg-red-500/5" />
-          <StatPill icon={<CheckCircle2 size={15} className="text-green-500" />} label="Resolved" value={resolved} color="border-green-200 dark:border-green-500/20 bg-green-50 dark:bg-green-500/5" />
+        <div className="flex items-center gap-2 overflow-x-auto md:overflow-visible md:flex-wrap pb-1 md:pb-0 -mx-1 px-1 md:mx-0 md:px-0">
+          <StatPill icon={<Activity size={15} className="text-blue-500 flex-shrink-0" />}    label="Total"    value={total}    color="border-blue-200 dark:border-blue-500/20 bg-blue-50 dark:bg-blue-500/5 flex-shrink-0" />
+          <StatPill icon={<AlertTriangle size={15} className="text-yellow-500 flex-shrink-0" />} label="Open"  value={open}     color="border-yellow-200 dark:border-yellow-500/20 bg-yellow-50 dark:bg-yellow-500/5 flex-shrink-0" />
+          <StatPill icon={<ShieldAlert size={15} className="text-red-500 flex-shrink-0" />}   label="Critical" value={critical} color="border-red-200 dark:border-red-500/20 bg-red-50 dark:bg-red-500/5 flex-shrink-0" />
+          <StatPill icon={<CheckCircle2 size={15} className="text-green-500 flex-shrink-0" />} label="Resolved" value={resolved} color="border-green-200 dark:border-green-500/20 bg-green-50 dark:bg-green-500/5 flex-shrink-0" />
         </div>
-      </div>
 
       {/* MOBILE TABS — hidden on desktop */}
       <div className="flex md:hidden gap-2 pr-6 flex-shrink-0">
