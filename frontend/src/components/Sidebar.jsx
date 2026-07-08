@@ -23,7 +23,6 @@ import {
 
 export default function Sidebar() {
 
-  const { collapsed, setCollapsed } = useSidebar();
   const location = useLocation();
   const { user, logout } = useAuth();
   const { notifications } = useNotifications();
