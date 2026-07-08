@@ -43,4 +43,16 @@ class Incident(Base):
     longitude: Mapped[float] = mapped_column(Float, default=0)
     status: Mapped[str] = mapped_column(String, default="Open")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    resolved_at: Mapped[Optional[datetime]]
+    resolved_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+
+    severity: Mapped[str] = mapped_column(String, default="Low")
+    tags: Mapped[str] = mapped_column(Text, default="")
+    root_cause: Mapped[str] = mapped_column(Text, default="")
+    impact: Mapped[str] = mapped_column(Text, default="")
+    actions: Mapped[str] = mapped_column(Text, default="")
+    summary: Mapped[str] = mapped_column(Text, default="")
+    confidence: Mapped[int] = mapped_column(Integer, default=70)
+    related_incidents: Mapped[int] = mapped_column(Integer, default=0)
+    assignee: Mapped[str] = mapped_column(String, default="Unassigned")
+
+    workspace: Mapped[Optional["Workspace"]] = relationship("Workspace", back_populates="incidents")
