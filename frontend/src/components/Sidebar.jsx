@@ -43,6 +43,12 @@ export default function Sidebar() {
     { name: "Team", path: "/team", icon: Users, roles: ["admin"], },
   ];
 
+  const handleLogout = () => {
+    if (window.confirm("Are you sure you want to log out?")) {
+      logout();
+    }
+  };
+
   return (
 
     <aside
@@ -165,7 +171,7 @@ export default function Sidebar() {
           {collapsed ? (
             <Tooltip label="Logout" side="right">
               <button
-                onClick={logout}
+                onClick={handleLogout}
                 className="flex items-center justify-center gap-2 p-3 rounded-xl bg-red-600 hover:bg-red-700 text-white w-full"
               >
                 <LogOut size={18} />
