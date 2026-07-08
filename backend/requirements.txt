@@ -4,3 +4,6 @@ python-dotenv
 openai
 groq
 slowapi
+sqlalchemy
+psycopg2-binary
+alembic
