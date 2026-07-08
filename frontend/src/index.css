@@ -115,3 +115,16 @@ html, body, .scroll-area {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
+
+.custom-cluster-icon div {
+  transition: transform 0.15s ease;
+}
+.custom-cluster-icon:hover div {
+  transform: scale(1.08);
+}
+.leaflet-popup-content-wrapper {
+  border-radius: 12px !important;
+}
+.leaflet-popup-tip {
+  background: white !important;
+}
