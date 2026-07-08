@@ -17,7 +17,7 @@ function AppShell() {
   const { selectedIncident, setSelectedIncident } = useIncident();
 
   return (
-    <div className="flex min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-white">
+    <div className="flex h-screen overflow-hidden bg-white dark:bg-slate-950 text-slate-900 dark:text-white">
       <CommandPalette />
       <Sidebar />
 

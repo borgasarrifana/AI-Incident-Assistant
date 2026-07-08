@@ -43,12 +43,7 @@ export default function Sidebar() {
     <aside
       className={`
         ${collapsed ? "w-18" : "w-72"}
-        min-h-screen
-        bg-white dark:bg-slate-950
-        border-r border-slate-200 dark:border-slate-800
-        transition-all duration-300
-        p-4
-        flex flex-col
+        h-full bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 p-4 flex flex-col
       `}
     >
 
@@ -71,16 +66,10 @@ export default function Sidebar() {
 
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="
-              p-2 rounded-lg
-              bg-slate-100 dark:bg-slate-800
-              hover:bg-slate-200 dark:hover:bg-slate-700
-              text-slate-700 dark:text-white
-            "
+            className=" p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-white"
           >
             {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
           </button>
-
         </div>
 
         {/* WORKSPACE */}
@@ -122,11 +111,8 @@ export default function Sidebar() {
                 <div key={item.name}>{link}</div>
               );
             })}
-
         </nav>
-
       </div>
-
       {/* FOOTER */}
       <div className="mt-auto">
 
@@ -143,19 +129,15 @@ export default function Sidebar() {
 
         {/* ACTIONS */}
         <div className={`flex ${collapsed ? "flex-col" : "items-center"} gap-3`}>
-
           <ThemeToggle collapsed={collapsed} />
-
           <NotificationPopover
             collapsed={collapsed}
             onOpenCenter={() => setShowNotifications(true)}
           />
-
           <NotificationCenter
             open={showNotifications}
             onClose={() => setShowNotifications(false)}
           />
-
           <button
             onClick={logout}
             className={`
@@ -169,11 +151,8 @@ export default function Sidebar() {
             <LogOut size={18} />
             {!collapsed && <span>Logout</span>}
           </button>
-
         </div>
-
       </div>
-
     </aside>
   );
 }
