@@ -36,6 +36,7 @@ function AppShell() {
             <Route path="/incidents" element={<Incidents />} />
             <Route path="/logs" element={<Logs />} />
             <Route path="/insights" element={<Insights />} />
+            <Route path="/team" element={<Team />} />
           </Routes>
         </Suspense>
       </div>
@@ -53,7 +54,6 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/team" element={<Team />} />
 
       <Route
         path="*"
