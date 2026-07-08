@@ -72,7 +72,9 @@ export default function Insights() {
         <IncidentCorrelationGraph />
       </div>
 
-      <IncidentGeoMap history={incidents} />
+      <div className="h-[600px] rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl">
+        <IncidentMap incidents={incidents} fullHeight />
+      </div>
 
     </div>
   );
