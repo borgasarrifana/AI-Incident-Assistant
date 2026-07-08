@@ -4,63 +4,52 @@ import {
   useState,
 } from "react";
 
-const NotificationContext =
-  createContext();
+const NotificationContext = createContext();
 
-export function NotificationProvider({
-  children,
-}) {
+export function NotificationProvider({ children }) {
 
-  const [notifications, setNotifications] =
-    useState([]);
+  const [notifications, setNotifications] = useState([]);
 
-  const addNotification = (
-    message,
-    type = "info"
-  ) => {
+  // meta can include { incidentId } to link a notification to an incident
+  const addNotification = (message, type = "info", meta = {}) => {
 
     const newNotification = {
       id: Date.now(),
       message,
       type,
       read: false,
-      createdAt:
-        new Date().toLocaleTimeString(),
+      createdAt: new Date().toLocaleTimeString(),
+      ...meta,
     };
 
     setNotifications((prev) => {
-
-      const updated = [
-        newNotification,
-        ...prev,
-      ];
-
+      const updated = [newNotification, ...prev];
       return updated.slice(0, 100);
     });
   };
 
   const markAllAsRead = () => {
-
     setNotifications((prev) =>
-      prev.map((n) => ({
-        ...n,
-        read: true,
-      }))
+      prev.map((n) => ({ ...n, read: true }))
+    );
+  };
+
+  const markAsRead = (id) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
   };
 
   return (
-
     <NotificationContext.Provider
       value={{
         notifications,
         addNotification,
         markAllAsRead,
+        markAsRead,
       }}
     >
-
       {children}
-
     </NotificationContext.Provider>
   );
 }

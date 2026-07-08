@@ -1,12 +1,24 @@
 import { useState } from "react";
 import { Bell, X, AlertTriangle, CheckCircle2, Info } from "lucide-react";
 import { useNotifications } from "../context/NotificationContext";
+import { useIncident } from "../context/IncidentContext";
 
 export default function NotificationPopover({ collapsed, onOpenCenter }) {
   const [open, setOpen] = useState(false);
-  const { notifications, markAllAsRead } = useNotifications();
+  const { notifications, markAllAsRead, markAsRead } = useNotifications();
   const unreadCount = notifications.filter((n) => !n.read).length;
   const latest = notifications.slice(0, 8);
+  const { incidents, setSelectedIncident } = useIncident();
+  const handleNotificationClick = (item) => {
+    markAsRead(item.id);
+    if (item.incidentId) {
+      const match = incidents.find((i) => i.id === item.incidentId);
+      if (match) {
+        setSelectedIncident(match);
+        setOpen(false); // close the popover so the modal is clearly visible
+      }
+    }
+  };
 
   return (
     <div className={`relative ${collapsed ? "w-full" : "flex-1"}`}>
@@ -52,7 +64,10 @@ export default function NotificationPopover({ collapsed, onOpenCenter }) {
             {latest.map((item) => (
               <button
                 key={item.id}
-                className="w-full text-left px-4 py-3 border-b border-slate-100 dark:border-slate-900 hover:bg-slate-100 dark:hover:bg-slate-900 transition"
+                onClick={() => handleNotificationClick(item)}
+                className={`w-full text-left px-4 py-3 border-b border-slate-100 dark:border-slate-900 hover:bg-slate-100 dark:hover:bg-slate-900 transition ${
+                  !item.read ? "bg-blue-50 dark:bg-blue-500/5" : ""
+                }`}
               >
                 <div className="flex items-start gap-3">
                   <div className="mt-1">
@@ -66,7 +81,7 @@ export default function NotificationPopover({ collapsed, onOpenCenter }) {
                   </div>
                   <div className="flex-1">
                     <div className="text-sm text-slate-900 dark:text-white">{item.message}</div>
-                    <div className="text-xs text-slate-500 mt-1">{item.time}</div>
+                    <div className="text-xs text-slate-500 mt-1">{item.createdAt}</div>
                   </div>
                 </div>
               </button>

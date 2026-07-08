@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { useIncident } from "../context/IncidentContext";
 import { motion, AnimatePresence } from "framer-motion";
-import IncidentDetailModal from "./IncidentDetailModal";
 
 const SEVERITY_STYLES = {
   Critical: "bg-red-500/20 text-red-400 border-red-500/30",
@@ -277,11 +276,6 @@ if (collapsed) {
           ))
         )}
       </div>
-      {/* INCIDENT DETAIL MODAL */}
-      <IncidentDetailModal
-        incident={selectedIncident}
-        onClose={() => setSelectedIncident(null)}
-      />
     </div>
   );
 }
