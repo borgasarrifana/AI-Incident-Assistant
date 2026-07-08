@@ -21,8 +21,10 @@ export default function Tooltip({ children, label, side = "right" }) {
           className={`
             absolute ${sideCls}
             px-2.5 py-1.5 rounded-lg
-            bg-slate-900 dark:bg-slate-800
-            text-white text-xs whitespace-nowrap
+            bg-white dark:bg-slate-800
+            text-slate-900 dark:text-white
+            border border-slate-200 dark:border-slate-700
+            text-xs whitespace-nowrap
             shadow-xl z-50
             pointer-events-none
           `}
