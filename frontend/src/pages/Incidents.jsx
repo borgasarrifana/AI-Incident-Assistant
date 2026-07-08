@@ -25,7 +25,7 @@ export default function Incidents() {
   const resolved = incidents.filter((i) => i.status === "Resolved").length;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-5rem)] gap-4 overflow-hidden -mr-6">
+    <div className="flex flex-col h-[calc(100vh-5rem)] gap-4 overflow-hidden -mr-4">
 
       {/* PAGE HEADER + QUICK STATS */}
       <div className="flex items-center justify-between flex-shrink-0 pr-6">

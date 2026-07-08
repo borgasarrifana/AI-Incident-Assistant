@@ -37,7 +37,7 @@ export default function Insights() {
   }
 
   return (
-    <div className="space-y-6" pr-6>
+    <div className="space-y-4" pr-4>
 
       <KPICards {...insights} />
 

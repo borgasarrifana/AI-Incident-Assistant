@@ -179,7 +179,6 @@ export default function IncidentMap({ incidents = [], fullHeight = false }) {
                     fillColor: color,
                     fillOpacity: 0.85,
                   }}
-                  eventHandlers={{ click: () => setSelectedIncident(incident) }}
                 >
                   <Popup>
                     <div className="space-y-2 min-w-[220px]">
@@ -199,6 +198,12 @@ export default function IncidentMap({ incidents = [], fullHeight = false }) {
                         <div><strong>Tags:</strong> {incident.result?.tags?.join(", ")}</div>
                         <div><strong>Created:</strong> {new Date(incident.createdAt).toLocaleString()}</div>
                       </div>
+                      <button
+                        onClick={() => setSelectedIncident(incident)}
+                        className="w-full mt-2 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition"
+                      >
+                        View full details
+                      </button>
                     </div>
                   </Popup>
                 </CircleMarker>
