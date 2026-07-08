@@ -1,9 +1,12 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, field_validator
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from app.services.openai_service import analyze_text
 from app.websocket_manager import manager
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
 
 MAX_INPUT_LENGTH = 4000
 
@@ -25,7 +28,8 @@ class IncidentRequest(BaseModel):
 
 
 @router.post("/analyze")
-async def analyze_incident(req: IncidentRequest):
+@limiter.limit("10/minute")
+async def analyze_incident(request: Request, req: IncidentRequest):
     prompt = f"""
 You are an incident management expert.
 

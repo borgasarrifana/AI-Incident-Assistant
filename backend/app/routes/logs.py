@@ -1,9 +1,12 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from pydantic import BaseModel, field_validator
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from app.services.openai_service import analyze_text
 from app.websocket_manager import manager
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
 
 MAX_INPUT_LENGTH = 8000  # logs can be longer
 
@@ -25,7 +28,8 @@ class LogRequest(BaseModel):
 
 
 @router.post("/analyze")
-async def analyze_logs(req: LogRequest):
+@limiter.limit("10/minute")
+async def analyze_logs(request: Request, req: LogRequest):
     prompt = f"""
 You are a senior software engineer and SRE.
 
