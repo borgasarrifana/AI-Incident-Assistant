@@ -36,8 +36,10 @@ export function IncidentProvider({ children }) {
     try {
       const res = await createIncidentAPI(incident);
       setIncidents((prev) => [res.data, ...prev]);
+      return res.data; // return the saved incident so callers can access its real id
     } catch (e) {
       console.error("Failed to save incident", e);
+      return null;
     }
   }, []);
 

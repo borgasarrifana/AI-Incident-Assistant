@@ -212,10 +212,7 @@ export default function IncidentAnalyzer() {
       aiResult.assignee = assignee;
       setResult(aiResult);
 
-      const incidentId = Date.now(); // captured once, reused below
-
-      addIncident({
-        id: incidentId,
+      const savedIncident = await addIncident({
         incident,
         locationName: locationName || "Unknown",
         latitude:     parseFloat(lat) || 0,
@@ -236,7 +233,7 @@ export default function IncidentAnalyzer() {
       });
 
       incrementIncidents();
-      addNotification("New incident analyzed", "success", { incidentId });
+      addNotification("New incident analyzed", "success", { incidentId: savedIncident?.id });
       addAuditLog("Analyzed incident", user?.email || "Unknown User");
       setIncident(""); setAssignee("Unassigned"); clearLocation();
     } catch (err) {
