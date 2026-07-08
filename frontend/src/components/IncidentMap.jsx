@@ -123,7 +123,7 @@ function Legend() {
   ];
 
   return (
-    <div className="absolute bottom-3 left-3 z-[1000] bg-white/95 dark:bg-slate-900/95 backdrop-blur border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 shadow-lg space-y-1">
+    <div className="absolute bottom-3 left-3 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 shadow-lg space-y-1">
       {items.map((item) => (
         <div key={item.label} className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
           <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
