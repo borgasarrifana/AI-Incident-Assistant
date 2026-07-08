@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import { analyzeIncident as analyzeIncidentAPI } from "../api";
 import { exportIncidentPDF } from "../utils/exportPDF";
 import { useNotifications } from "../context/NotificationContext";
-import { useMetrics } from "../context/MetricsContext";
 import { useAudit } from "../context/AuditContext";
 import { useAuth } from "../context/AuthContext";
 import { useIncident } from "../context/IncidentContext";
@@ -171,7 +170,6 @@ export default function IncidentAnalyzer() {
   const fileInputRef = useRef(null);
 
   const { addNotification }    = useNotifications();
-  const { incrementIncidents } = useMetrics();
   const { addAuditLog }        = useAudit();
   const { user }               = useAuth();
   const { addIncident }        = useIncident();
@@ -232,7 +230,6 @@ export default function IncidentAnalyzer() {
         },
       });
 
-      incrementIncidents();
       addNotification("New incident analyzed", "success", { incidentId: savedIncident?.id });
       addAuditLog("Analyzed incident", user?.email || "Unknown User");
       setIncident(""); setAssignee("Unassigned"); clearLocation();

@@ -1,7 +1,6 @@
 import { useState, useRef } from "react";
 import { analyzeLogs } from "../api";
 import { useNotifications } from "../context/NotificationContext";
-import { useMetrics } from "../context/MetricsContext";
 import { Loader2, Info } from "lucide-react";
 
 const EXAMPLE_LOG = `2026-07-07 14:32:01 INFO  [app.services.db] Connection pool initialized: max_size=20, min_size=5
@@ -51,7 +50,6 @@ export default function LogAnalyzer() {
 
   // Hooks at top level — not inside helper functions
   const { addNotification } = useNotifications();
-  const { incrementLogs } = useMetrics();
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -71,7 +69,6 @@ export default function LogAnalyzer() {
       const res = await analyzeLogs(text);
       const parsed = parseAIResponse(res.data.result);
       setResult(parsed);
-      incrementLogs();
       addNotification("Logs analyzed successfully", "success");
     } catch (err) {
       console.error(err);
