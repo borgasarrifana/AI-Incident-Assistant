@@ -67,7 +67,7 @@ export default function WorkspaceSwitcher({ collapsed }) {
                 className={`
                   w-full text-left p-3 rounded-xl transition
                   ${
-                    activeWorkspace.id === workspace.id
+                    activeWorkspace?.id === workspace.id
                       ? "bg-blue-600 text-white"
                       : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                   }
