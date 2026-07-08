@@ -8,6 +8,7 @@ import NotificationCenter from "./NotificationCenter";
 import ThemeToggle from "./ThemeToggle";
 import { useSidebar } from "../context/SidebarContext";
 import Tooltip from "./Tooltip";
+import { useTheme } from "../context/ThemeContext";
 import {
   LayoutDashboard,
   AlertTriangle,
@@ -26,6 +27,8 @@ export default function Sidebar() {
   const { user, logout } = useAuth();
   const { notifications } = useNotifications();
   const [showNotifications, setShowNotifications] = useState(false);
+  const { darkMode } = useTheme();
+  const darkModeLabel = darkMode ? "Switch to light mode" : "Switch to dark mode";
   const unreadCount =
     notifications.filter(
       (n) => !n.read
