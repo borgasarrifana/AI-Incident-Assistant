@@ -4,10 +4,10 @@ import {
   MapPin,
   Clock,
   Search,
-  ShieldAlert,
   Trash2,
   ArrowRight,
 } from "lucide-react";
+import { useState } from "react";
 import { useIncident } from "../context/IncidentContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
