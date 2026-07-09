@@ -26,7 +26,6 @@ export default function RecentIncidentsPanel({ forceExpanded = false }) {
   const [showSearch, setShowSearch] = useState(false);
   const [severityFilter, setSeverityFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
-  const [detailIncident, setDetailIncident] = useState(null);
   const { user } = useAuth();
   const { rightPanelCollapsed, setRightPanelCollapsed } = useSidebar();
 
@@ -216,7 +215,6 @@ if (collapsed) {
                 setSelectedIncident(
                   selectedIncident?.id === item.id ? null : item
                 );
-                setDetailIncident(item);
               }}
               className={`p-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors space-y-2 ${
                 selectedIncident?.id === item.id

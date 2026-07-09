@@ -16,7 +16,16 @@ const IncidentContext = createContext();
 
 export function IncidentProvider({ children }) {
   const [incidents, setIncidents] = useState([]);
-  const [selectedIncident, setSelectedIncident] = useState(null);
+  const [selectedIncidentId, setSelectedIncidentId] = useState(null);
+
+  // Always derived from the incidents array, so it's never stale
+  const selectedIncident =
+    incidents.find((inc) => inc.id === selectedIncidentId) ?? null;
+
+  // Keeps the same signature: accepts an incident object (or null)
+  const setSelectedIncident = useCallback((incident) => {
+    setSelectedIncidentId(incident?.id ?? null);
+  }, []);
 
   // Load incidents from the backend on first mount
   useEffect(() => {
