@@ -1,4 +1,7 @@
 import { X, MapPin, Clock, User } from "lucide-react";
+import { useIncident } from "../context/IncidentContext";
+import { STATUS_META, getNextStatus } from "../utils/statusPipeline";
+import { ArrowRight } from "lucide-react";
 
 const SEVERITY_COLOR = {
   Critical: "bg-red-500/20 text-red-400 border-red-500/30",
@@ -11,6 +14,7 @@ export default function IncidentDetailModal({ incident, onClose }) {
   if (!incident) return null;
 
   const result = incident.result || {};
+  const { updateIncidentStatus } = useIncident();
 
   return (
     <div
@@ -54,11 +58,11 @@ export default function IncidentDetailModal({ incident, onClose }) {
           {incident.incident}
         </div>
 
-        {/* SEVERITY */}
-        <div className="flex items-center justify-between">
+        {/* STATUS + SEVERITY */}
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Status</span>
           <div className="flex items-center gap-2">
-            <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+            <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${STATUS_META[incident.status]?.badge ?? STATUS_META.Open.badge}`}>
               {incident.status}
             </span>
             <span className={`px-3 py-1 rounded-full text-sm font-medium border ${SEVERITY_COLOR[result.severity] ?? SEVERITY_COLOR.Low}`}>
@@ -66,6 +70,15 @@ export default function IncidentDetailModal({ incident, onClose }) {
             </span>
           </div>
         </div>
+
+{getNextStatus(incident.status) && (
+  <button
+    onClick={() => updateIncidentStatus(incident.id, getNextStatus(incident.status))}
+    className="flex items-center justify-center gap-2 w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition"
+  >
+    Mark as {getNextStatus(incident.status)} <ArrowRight size={14} />
+  </button>
+)}
 
         {/* TAGS */}
         {result.tags?.length > 0 && (

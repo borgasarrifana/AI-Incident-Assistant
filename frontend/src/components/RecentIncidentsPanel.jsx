@@ -1,31 +1,24 @@
-import { useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
   MapPin,
   Clock,
   Search,
-  AlertTriangle,
-  CheckCircle2,
   ShieldAlert,
   Trash2,
+  ArrowRight,
 } from "lucide-react";
 import { useIncident } from "../context/IncidentContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { useSidebar } from "../context/SidebarContext";
+import { STATUS_META, getNextStatus } from "../utils/statusPipeline";
 
 const SEVERITY_STYLES = {
   Critical: "bg-red-500/20 text-red-400 border-red-500/30",
   High: "bg-orange-500/20 text-orange-400 border-orange-500/30",
   Medium: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
   Low: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-};
-
-const STATUS_ICON = {
-  Open: <AlertTriangle size={14} className="text-yellow-400" />,
-  Resolved: <CheckCircle2 size={14} className="text-green-400" />,
-  Critical: <ShieldAlert size={14} className="text-red-400" />,
 };
 
 export default function RecentIncidentsPanel({ forceExpanded = false }) {
@@ -188,8 +181,8 @@ if (collapsed) {
       </div>
 
       {/* STATUS FILTER — fixed */}
-      <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-800 flex gap-1.5 flex-shrink-0">
-        {["All", "Open", "Resolved"].map((s) => (
+      <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-800 flex gap-1.5 flex-wrap flex-shrink-0">
+        {["All", "Open", "Investigating", "Mitigated", "Resolved"].map((s) => (
           <button
             key={s}
             onClick={() => setStatusFilter(s)}
@@ -242,7 +235,11 @@ if (collapsed) {
                 </span>
 
                 <div className="flex items-center gap-1">
-                  {STATUS_ICON[item.status] ?? STATUS_ICON.Open}
+                  {(() => {
+                    const meta = STATUS_META[item.status] ?? STATUS_META.Open;
+                    const StatusIcon = meta.icon;
+                    return <StatusIcon size={14} className={meta.color} />;
+                  })()}
                   <span className="text-xs text-slate-500 dark:text-slate-400">{item.status}</span>
                 </div>
               </div>
@@ -266,16 +263,16 @@ if (collapsed) {
                 </span>
               </div>
 
-              {/* RESOLVE BUTTON */}
-              {item.status === "Open" && (
+              {/* ADVANCE STATUS BUTTON */}
+              {getNextStatus(item.status) && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    updateIncidentStatus(item.id, "Resolved");
+                    updateIncidentStatus(item.id, getNextStatus(item.status));
                   }}
-                  className="text-xs text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 transition font-medium"
+                  className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition font-medium"
                 >
-                  ✓ Mark as Resolved
+                  Mark as {getNextStatus(item.status)} <ArrowRight size={12} />
                 </button>
               )}
             </div>
