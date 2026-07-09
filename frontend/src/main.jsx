@@ -11,6 +11,7 @@ import { WorkspaceProvider } from "./context/WorkspaceContext";
 import { AuditProvider } from "./context/AuditContext";
 import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider } from "./context/ThemeContext";
+import { ToastProvider } from "./context/ToastContext";
 
 ReactDOM.createRoot(
   document.getElementById("root")
