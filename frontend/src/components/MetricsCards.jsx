@@ -37,7 +37,6 @@ export default function MetricsCards() {
   const totalIncidents = incidents.length;
   const criticalCount = incidents.filter((i) => i.result?.severity === "Critical").length;
   const openCount = incidents.filter((i) => i.status === "Open").length;
-  const resolvedCount = incidents.filter((i) => i.status === "Resolved").length;
   const health = totalIncidents === 0 ? 100 : Math.max(0, 100 - Math.round((criticalCount / totalIncidents) * 15));
 
   const metrics = [

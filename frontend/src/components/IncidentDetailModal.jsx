@@ -11,10 +11,12 @@ const SEVERITY_COLOR = {
 };
 
 export default function IncidentDetailModal({ incident, onClose }) {
+
+  const { updateIncidentStatus } = useIncident();
   if (!incident) return null;
 
   const result = incident.result || {};
-  const { updateIncidentStatus } = useIncident();
+  
 
   return (
     <div

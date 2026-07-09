@@ -9,8 +9,11 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
 
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // NEW
+  const [user, setUser] = useState(() => {
+  const stored = localStorage.getItem("user"); // use your actual key
+  return stored ? JSON.parse(stored) : null;
+  });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
 

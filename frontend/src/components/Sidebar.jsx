@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useNotifications } from "../context/NotificationContext";
 import WorkspaceSwitcher from "./WorkspaceSwitcher";
 import NotificationPopover from "./NotificationPopover";
 import NotificationCenter from "./NotificationCenter";
@@ -42,7 +41,6 @@ export default function Sidebar() {
 
   const location = useLocation();
   const { user, logout } = useAuth();
-  const { notifications } = useNotifications();
   const [showNotifications, setShowNotifications] = useState(false);
   const { darkMode } = useTheme();
   const darkModeLabel = darkMode ? "Switch to light mode" : "Switch to dark mode";
