@@ -11,23 +11,22 @@ import {
   updateIncidentStatusAPI,
   clearIncidentsAPI,
 } from "../api";
+import { useToast } from "./ToastContext";
 
 const IncidentContext = createContext();
 
 export function IncidentProvider({ children }) {
   const [incidents, setIncidents] = useState([]);
   const [selectedIncidentId, setSelectedIncidentId] = useState(null);
+  const { showToast } = useToast();
 
-  // Always derived from the incidents array, so it's never stale
   const selectedIncident =
     incidents.find((inc) => inc.id === selectedIncidentId) ?? null;
 
-  // Keeps the same signature: accepts an incident object (or null)
   const setSelectedIncident = useCallback((incident) => {
     setSelectedIncidentId(incident?.id ?? null);
   }, []);
 
-  // Load incidents from the backend on first mount
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -36,41 +35,60 @@ export function IncidentProvider({ children }) {
         if (!cancelled) setIncidents(res.data);
       } catch (e) {
         console.error("Failed to load incidents", e);
+        if (!cancelled) showToast("Failed to load incidents from server.", "error");
       }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [showToast]);
 
   const addIncident = useCallback(async (incident) => {
     try {
       const res = await createIncidentAPI(incident);
       setIncidents((prev) => [res.data, ...prev]);
-      return res.data; // return the saved incident so callers can access its real id
+      showToast("Incident saved.", "success");
+      return res.data;
     } catch (e) {
       console.error("Failed to save incident", e);
+      showToast("Failed to save incident. Please try again.", "error");
       return null;
     }
-  }, []);
+  }, [showToast]);
 
   const updateIncidentStatus = useCallback(async (id, status) => {
+    // Snapshot for rollback
+    let previous;
+    setIncidents((prev) => {
+      previous = prev;
+      return prev.map((inc) =>
+        inc.id === id ? { ...inc, status } : inc
+      );
+    });
+
     try {
       const res = await updateIncidentStatusAPI(id, status);
+      // Reconcile with the server's version (in case backend adds fields)
       setIncidents((prev) =>
         prev.map((inc) => (inc.id === id ? res.data : inc))
       );
     } catch (e) {
       console.error("Failed to update incident status", e);
+      setIncidents(previous); // rollback
+      showToast("Couldn't update status — change reverted.", "error");
     }
-  }, []);
+  }, [showToast]);
 
   const clearIncidents = useCallback(async () => {
+    const previous = incidents;
+    setIncidents([]); // optimistic
     try {
       await clearIncidentsAPI();
-      setIncidents([]);
+      showToast("Incident history cleared.", "success");
     } catch (e) {
       console.error("Failed to clear incidents", e);
+      setIncidents(previous); // rollback
+      showToast("Couldn't clear incidents — restored.", "error");
     }
-  }, []);
+  }, [incidents, showToast]);
 
   return (
     <IncidentContext.Provider

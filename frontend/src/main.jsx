@@ -21,11 +21,13 @@ ReactDOM.createRoot(
     <WorkspaceProvider>
       <AuditProvider>
         <BrowserRouter>
-          <IncidentProvider>
-            <ThemeProvider>
-              <App />
-            </ThemeProvider>
-          </IncidentProvider>
+          <ToastProvider>
+            <IncidentProvider>
+              <ThemeProvider>
+                <App />
+              </ThemeProvider>
+            </IncidentProvider>
+          </ToastProvider>
         </BrowserRouter>
       </AuditProvider>
     </WorkspaceProvider>
