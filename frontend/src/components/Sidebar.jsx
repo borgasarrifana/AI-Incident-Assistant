@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useLocation,} from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useNotifications } from "../context/NotificationContext";
 import WorkspaceSwitcher from "./WorkspaceSwitcher";
@@ -17,9 +17,26 @@ import {
   BrainCircuit,
   ChevronLeft,
   ChevronRight,
-  Bell,
   LogOut,
 } from "lucide-react";
+
+// Tracks whether the viewport is at Tailwind's `lg` breakpoint (1024px) or wider.
+// Used so "collapsed" only ever applies to the real desktop icon-rail —
+// the mobile drawer always renders fully expanded, regardless of desktop state.
+function useIsDesktop() {
+  const [isDesktop, setIsDesktop] = useState(
+    () => typeof window !== "undefined" && window.innerWidth >= 1024
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const handler = (e) => setIsDesktop(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  return isDesktop;
+}
 
 export default function Sidebar() {
 
@@ -30,17 +47,17 @@ export default function Sidebar() {
   const { darkMode } = useTheme();
   const darkModeLabel = darkMode ? "Switch to light mode" : "Switch to dark mode";
   const { collapsed, setCollapsed, mobileNavOpen, setMobileNavOpen } = useSidebar();
-  const unreadCount =
-    notifications.filter(
-      (n) => !n.read
-    ).length;
+  const isDesktop = useIsDesktop();
+
+  // Only actually collapse the rail on desktop — mobile drawer always shows full content
+  const effectiveCollapsed = isDesktop ? collapsed : false;
 
   const navItems = [
     { name: "Dashboard", path: "/", icon: LayoutDashboard, roles: ["admin", "analyst", "viewer"] },
     { name: "Incidents", path: "/incidents", icon: AlertTriangle, roles: ["admin", "analyst"] },
     { name: "Logs", path: "/logs", icon: FileText, roles: ["admin", "analyst"] },
     { name: "AI Insights", path: "/insights", icon: BrainCircuit, roles: ["admin", "analyst"] },
-    { name: "Team", path: "/team", icon: Users, roles: ["admin"], },
+    { name: "Team", path: "/team", icon: Users, roles: ["admin"] },
   ];
 
   const handleLogout = () => {
@@ -51,161 +68,163 @@ export default function Sidebar() {
 
   return (
     <>
-    {/* MOBILE BACKDROP — tap to close */}
-    {mobileNavOpen && (
-      <div
-        className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-        onClick={() => setMobileNavOpen(false)}
-      />
-    )}
-    
-    <aside
-      className={`
-        fixed md:static top-0 left-0 z-50
-        w-72 ${collapsed ? "lg:w-18" : "lg:w-72"}
-        h-full
-        bg-white dark:bg-slate-950
-        border-r border-slate-200 dark:border-slate-800
-        transition-transform md:transition-all duration-300
-        ${mobileNavOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0
-        p-4
-        flex flex-col
-      `}
-    >
+      {/* MOBILE BACKDROP — tap to close */}
+      {mobileNavOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setMobileNavOpen(false)}
+        />
+      )}
 
-      {/* TOP */}
-      <div>
+      <aside
+        className={`
+          fixed lg:static top-0 left-0 z-50
+          w-72 ${effectiveCollapsed ? "lg:w-[4.5rem]" : "lg:w-72"}
+          h-full
+          bg-white dark:bg-slate-950
+          border-r border-slate-200 dark:border-slate-800
+          transition-transform lg:transition-[width] duration-300
+          ${mobileNavOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0
+          p-4
+          flex flex-col
+        `}
+      >
 
-        {/* HEADER */}
-        <div className="flex items-center justify-between mb-8">
+        {/* TOP */}
+        <div>
 
-          {!collapsed && (
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-                AI Ops
-              </h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Operations Platform
-              </p>
+          {/* HEADER */}
+          <div className="flex items-center justify-between mb-8">
+
+            {!effectiveCollapsed && (
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                  AI Ops
+                </h1>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Operations Platform
+                </p>
+              </div>
+            )}
+
+            {/* COLLAPSE TOGGLE — desktop only, hidden entirely on mobile */}
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className="hidden lg:inline-flex p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-white"
+            >
+              {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+            </button>
+          </div>
+
+          {/* WORKSPACE */}
+          <WorkspaceSwitcher collapsed={effectiveCollapsed} />
+
+          {/* NAVIGATION */}
+          <nav className="space-y-3 mt-6">
+
+            {navItems
+              .filter((item) => item.roles.includes(user?.role))
+              .map((item) => {
+                const Icon = item.icon;
+                const active = location.pathname === item.path;
+
+                const link = (
+                  <Link
+                    to={item.path}
+                    onClick={() => setMobileNavOpen(false)}
+                    className={`
+                      flex items-center
+                      gap-3 p-3 rounded-xl
+                      transition
+                      ${
+                        active
+                          ? "bg-blue-600 text-white"
+                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      }
+                    `}
+                  >
+                    <Icon size={20} />
+                    {!effectiveCollapsed && <span className="text-sm font-medium">{item.name}</span>}
+                  </Link>
+                );
+
+                return effectiveCollapsed ? (
+                  <Tooltip key={item.name} label={item.name} side="right">
+                    {link}
+                  </Tooltip>
+                ) : (
+                  <div key={item.name}>{link}</div>
+                );
+              })}
+          </nav>
+        </div>
+
+        {/* FOOTER */}
+        <div className="mt-auto">
+
+          {/* USER */}
+          {!effectiveCollapsed && (
+            <div className="mb-4 p-4 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+              <p className="text-xs text-slate-500 dark:text-slate-400">Logged in as</p>
+              <p className="text-sm text-slate-900 dark:text-white mt-1 truncate">{user?.email}</p>
+              <span className="inline-block mt-3 px-3 py-1 rounded-full bg-blue-600 text-xs text-white capitalize">
+                {user?.role}
+              </span>
             </div>
           )}
 
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className=" p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-white"
-          >
-            {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-          </button>
-        </div>
+          {/* ACTIONS */}
+          <div className={`flex ${effectiveCollapsed ? "flex-col" : "items-center"} gap-3`}>
 
-        {/* WORKSPACE */}
-        <WorkspaceSwitcher collapsed={collapsed} />
+            {effectiveCollapsed ? (
+              <Tooltip label={darkModeLabel} side="right">
+                <ThemeToggle collapsed={effectiveCollapsed} />
+              </Tooltip>
+            ) : (
+              <ThemeToggle collapsed={effectiveCollapsed} />
+            )}
 
-        {/* NAVIGATION */}
-        <nav className="space-y-3 mt-6">
-
-          {navItems
-            .filter((item) => item.roles.includes(user?.role))
-            .map((item) => {
-              const Icon = item.icon;
-              const active = location.pathname === item.path;
-
-              const link = (
-                <Link
-                  to={item.path}
-                  onClick={() => setMobileNavOpen(false)}
-                  className={`
-                    flex items-center
-                    gap-3 p-3 rounded-xl
-                    transition
-                    ${
-                      active
-                        ? "bg-blue-600 text-white"
-                        : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-                    }
-                  `}
-                >
-                  <Icon size={20} />
-                  {!collapsed && <span className="text-sm font-medium">{item.name}</span>}
-                </Link>
-              );
-
-              return collapsed ? (
-                <Tooltip key={item.name} label={item.name} side="right">
-                  {link}
-                </Tooltip>
-              ) : (
-                <div key={item.name}>{link}</div>
-              );
-            })}
-        </nav>
-      </div>
-      {/* FOOTER */}
-      <div className="mt-auto">
-
-        {/* USER */}
-        {!collapsed && (
-          <div className="mb-4 p-4 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-            <p className="text-xs text-slate-500 dark:text-slate-400">Logged in as</p>
-            <p className="text-sm text-slate-900 dark:text-white mt-1 truncate">{user?.email}</p>
-            <span className="inline-block mt-3 px-3 py-1 rounded-full bg-blue-600 text-xs text-white capitalize">
-              {user?.role}
-            </span>
-          </div>
-        )}
-
-        {/* ACTIONS */}
-        <div className={`flex ${collapsed ? "flex-col" : "items-center"} gap-3`}>
-
-          {collapsed ? (
-            <Tooltip label={darkModeLabel} side="right">
-              <ThemeToggle collapsed={collapsed} />
-            </Tooltip>
-          ) : (
-            <ThemeToggle collapsed={collapsed} />
-          )}
-
-          {collapsed ? (
-            <Tooltip label="Notifications" side="right">
+            {effectiveCollapsed ? (
+              <Tooltip label="Notifications" side="right">
+                <NotificationPopover
+                  collapsed={effectiveCollapsed}
+                  onOpenCenter={() => setShowNotifications(true)}
+                />
+              </Tooltip>
+            ) : (
               <NotificationPopover
-                collapsed={collapsed}
+                collapsed={effectiveCollapsed}
                 onOpenCenter={() => setShowNotifications(true)}
               />
-            </Tooltip>
-          ) : (
-            <NotificationPopover
-              collapsed={collapsed}
-              onOpenCenter={() => setShowNotifications(true)}
+            )}
+
+            <NotificationCenter
+              open={showNotifications}
+              onClose={() => setShowNotifications(false)}
             />
-          )}
 
-          <NotificationCenter
-            open={showNotifications}
-            onClose={() => setShowNotifications(false)}
-          />
-
-          {collapsed ? (
-            <Tooltip label="Logout" side="right">
+            {effectiveCollapsed ? (
+              <Tooltip label="Logout" side="right">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center justify-center gap-2 p-3 rounded-xl bg-red-600 hover:bg-red-700 text-white w-full"
+                >
+                  <LogOut size={18} />
+                </button>
+              </Tooltip>
+            ) : (
               <button
                 onClick={handleLogout}
-                className="flex items-center justify-center gap-2 p-3 rounded-xl bg-red-600 hover:bg-red-700 text-white w-full"
+                className="flex items-center justify-center gap-2 p-3 rounded-xl bg-red-600 hover:bg-red-700 text-white flex-1"
               >
                 <LogOut size={18} />
+                <span>Logout</span>
               </button>
-            </Tooltip>
-          ) : (
-            <button
-              onClick={handleLogout}
-              className="flex items-center justify-center gap-2 p-3 rounded-xl bg-red-600 hover:bg-red-700 text-white flex-1"
-            >
-              <LogOut size={18} />
-              <span>Logout</span>
-            </button>
-          )}
+            )}
 
+          </div>
         </div>
-      </div>
-    </aside>
-  </>
+      </aside>
+    </>
   );
 }
