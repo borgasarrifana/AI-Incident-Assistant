@@ -176,18 +176,31 @@ export default function IncidentAnalyzer() {
   const { assignees } = useAssignees();
 
   useEffect(() => {
-  clearTimeout(locationDebounce.current);
-  locationDebounce.current = setTimeout(async () => {
-    if (locationQuery.trim().length < 3) {
-      setLocationSuggestions([]);
-      return;
-    }
-    setLocationLoading(true);
-    // ... rest of the fetch logic
-  }, 300); // whatever your delay is
+    clearTimeout(locationDebounce.current);
 
-  return () => clearTimeout(locationDebounce.current);
-  }, [locationQuery]);
+    locationDebounce.current = setTimeout(async () => {
+      if (locationQuery.trim().length < 3) {
+        setLocationSuggestions([]);
+        setLocationLoading(false);
+        return;
+      }
+
+      // Don't re-search when the query was set by selecting a suggestion
+      if (locationQuery === locationName) return;
+
+      setLocationLoading(true);
+      try {
+        const results = await geocodeLocation(locationQuery);
+        setLocationSuggestions(results);
+      } catch {
+        setLocationSuggestions([]);
+      } finally {
+        setLocationLoading(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(locationDebounce.current);
+  }, [locationQuery, locationName]);
 
   const selectLocation = (place) => {
     const name = place.display_name.split(",").slice(0, 2).join(",").trim();
