@@ -1,10 +1,21 @@
-# AI Incident Assistant
+# AI Ops — AI Incident Assistant
 
-An AI-powered IT Operations platform for managing, triaging, and resolving infrastructure incidents. Built as a full-stack portfolio project featuring an LLM-assisted workflow, real-time incident mapping, and role-based access control.
+An AI-powered IT Operations platform for managing, triaging, and resolving infrastructure incidents. Full-stack: React frontend, FastAPI backend, Postgres, and an LLM-assisted analysis workflow with real-time incident mapping and role-based access control.
 
-**Live demo:** _[add your Vercel URL here]_
+**[Live demo →](https://project-dutfp.vercel.app/)**
 
----
+![Operations dashboard with real-time stats and global incident map](docs/screenshots/dashboard.png)
+*Operations dashboard — live incident stats, activity trends, global incident map (Leaflet + CARTO), and AI workspace summary*
+
+## Screenshots
+
+| AI Analysis | Incident Analyzer |
+|---|---|
+| ![AI root cause analysis panel](docs/screenshots/ai-analysis.png) | ![Incident analyzer with geocoded location](docs/screenshots/incident-analyzer.png) |
+| *LLM root cause analysis with impact assessment, recommended actions, and confidence scoring (Groq, llama-3.3-70b)* | *Describe, geocode, assign, and analyze incidents in real time (Nominatim geocoding)* |
+
+![Bulk import review queue](docs/screenshots/bulk-import.png)
+*CSV/JSON bulk import with a review queue before committing incidents*
 
 ## Features
 
@@ -20,13 +31,13 @@ An AI-powered IT Operations platform for managing, triaging, and resolving infra
 
 ## Tech Stack
 
-| Layer | Technology | Hosting |
-|---|---|---|
-| Frontend | React + Vite + Tailwind CSS + Framer Motion + Leaflet | Vercel |
-| Backend | FastAPI + SQLAlchemy 2.0 + slowapi | Render |
-| Database | Supabase (Postgres) | Supabase |
-| AI | Groq API (`llama-3.3-70b-versatile`) | — |
-| Geocoding | Nominatim | — |
+| Layer     | Technology                                            | Hosting  |
+| --------- | ----------------------------------------------------- | -------- |
+| Frontend  | React + Vite + Tailwind CSS + Framer Motion + Leaflet | Vercel   |
+| Backend   | FastAPI + SQLAlchemy 2.0 + slowapi                    | Render   |
+| Database  | Supabase (Postgres)                                   | Supabase |
+| AI        | Groq API (`llama-3.3-70b-versatile`)                  | —        |
+| Geocoding | Nominatim                                             | —        |
 
 ## Architecture Highlights
 
@@ -56,13 +67,14 @@ cd AI-Incident-Assistant
 ```bash
 cd backend
 python -m venv venv
+source venv/bin/activate     # macOS / Linux
 venv\Scripts\activate        # Windows
 pip install -r requirements.txt
 ```
 
 Create a `.env` file in the backend directory:
 
-```env
+```
 DATABASE_URL=postgresql://<user>:<password>@<host>:6543/postgres
 GROQ_API_KEY=your_groq_api_key
 ```
@@ -82,7 +94,7 @@ npm install
 
 Create a `.env` file in the frontend directory:
 
-```env
+```
 VITE_API_URL=http://localhost:8000
 ```
 
@@ -100,6 +112,7 @@ npm run dev
 
 ## Roadmap
 
+- [ ] AI Insights screen — deeper cross-incident analytics (in development)
 - [ ] Persisted per-incident audit trail
 - [ ] Incident detail page (`/incidents/:id`)
 
