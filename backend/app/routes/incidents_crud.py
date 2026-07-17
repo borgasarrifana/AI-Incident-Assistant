@@ -2,8 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime
 from app.database import get_db
-from app.models import Incident
-from app.schemas import IncidentCreate, IncidentOut, IncidentStatusUpdate
+from app.models import Incident, IncidentEvent
+from app.schemas import (
+    IncidentCreate,
+    IncidentOut,
+    IncidentStatusUpdate,
+    IncidentEventOut,
+)
 
 router = APIRouter()
 
@@ -33,10 +38,54 @@ def _to_out(incident: Incident) -> dict:
     }
 
 
+def _event_to_out(event: IncidentEvent) -> dict:
+    return {
+        "id": event.id,
+        "action": event.action,
+        "detail": event.detail,
+        "actor": event.actor,
+        "createdAt": event.created_at,
+    }
+
+
+def _log_event(db: Session, incident_id: str, action: str, detail: str = "", actor: str = "Unknown"):
+    """Attach an audit event to the current transaction (committed by the caller)."""
+    db.add(
+        IncidentEvent(
+            incident_id=incident_id,
+            action=action,
+            detail=detail,
+            actor=actor or "Unknown",
+        )
+    )
+
+
 @router.get("/", response_model=list[IncidentOut])
 def list_incidents(db: Session = Depends(get_db)):
     incidents = db.query(Incident).order_by(Incident.created_at.desc()).all()
     return [_to_out(i) for i in incidents]
+
+
+@router.get("/{incident_id}", response_model=IncidentOut)
+def get_incident(incident_id: str, db: Session = Depends(get_db)):
+    incident = db.query(Incident).filter(Incident.id == incident_id).first()
+    if not incident:
+        raise HTTPException(status_code=404, detail="Incident not found")
+    return _to_out(incident)
+
+
+@router.get("/{incident_id}/events", response_model=list[IncidentEventOut])
+def list_incident_events(incident_id: str, db: Session = Depends(get_db)):
+    incident = db.query(Incident).filter(Incident.id == incident_id).first()
+    if not incident:
+        raise HTTPException(status_code=404, detail="Incident not found")
+    events = (
+        db.query(IncidentEvent)
+        .filter(IncidentEvent.incident_id == incident_id)
+        .order_by(IncidentEvent.created_at.desc())
+        .all()
+    )
+    return [_event_to_out(e) for e in events]
 
 
 @router.post("/", response_model=IncidentOut)
@@ -60,6 +109,16 @@ def create_incident(payload: IncidentCreate, db: Session = Depends(get_db)):
         assignee=payload.result.assignee,
     )
     db.add(incident)
+    db.flush()  # populate incident.id before logging the event
+
+    _log_event(
+        db,
+        incident.id,
+        action="created",
+        detail=f"Severity {incident.severity} · assigned to {incident.assignee}",
+        actor=payload.actor,
+    )
+
     db.commit()
     db.refresh(incident)
     return _to_out(incident)
@@ -70,9 +129,21 @@ def update_incident_status(incident_id: str, payload: IncidentStatusUpdate, db: 
     incident = db.query(Incident).filter(Incident.id == incident_id).first()
     if not incident:
         raise HTTPException(status_code=404, detail="Incident not found")
+
+    old_status = incident.status
     incident.status = payload.status
     if payload.status == "Resolved":
         incident.resolved_at = datetime.utcnow()
+
+    if old_status != payload.status:
+        _log_event(
+            db,
+            incident.id,
+            action="status_changed",
+            detail=f"{old_status} → {payload.status}",
+            actor=payload.actor,
+        )
+
     db.commit()
     db.refresh(incident)
     return _to_out(incident)
@@ -80,6 +151,7 @@ def update_incident_status(incident_id: str, payload: IncidentStatusUpdate, db: 
 
 @router.delete("/")
 def clear_incidents(db: Session = Depends(get_db)):
+    # Events are removed automatically via the DB-level ON DELETE CASCADE
     db.query(Incident).delete()
     db.commit()
     return {"detail": "All incidents cleared"}

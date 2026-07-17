@@ -6,8 +6,10 @@ import {
   Search,
   Trash2,
   ArrowRight,
+  FileText,
 } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useIncident } from "../context/IncidentContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
@@ -261,18 +263,30 @@ if (collapsed) {
                 </span>
               </div>
 
-              {/* ADVANCE STATUS BUTTON */}
-              {getNextStatus(item.status) && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    updateIncidentStatus(item.id, getNextStatus(item.status));
-                  }}
-                  className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition font-medium"
+              {/* FOOTER — advance status (left) + details link (right) */}
+              <div className="flex items-center justify-between">
+                {getNextStatus(item.status) ? (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateIncidentStatus(item.id, getNextStatus(item.status));
+                    }}
+                    className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition font-medium"
+                  >
+                    Mark as {getNextStatus(item.status)} <ArrowRight size={12} />
+                  </button>
+                ) : (
+                  <span />
+                )}
+
+                <Link
+                  to={`/incidents/${item.id}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition font-medium"
                 >
-                  Mark as {getNextStatus(item.status)} <ArrowRight size={12} />
-                </button>
-              )}
+                  <FileText size={12} /> Details
+                </Link>
+              </div>
             </div>
           ))
         )}

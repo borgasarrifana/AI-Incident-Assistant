@@ -12,6 +12,7 @@ import {
   clearIncidentsAPI,
 } from "../api";
 import { useToast } from "./ToastContext";
+import { useAuth } from "./AuthContext";
 
 const IncidentContext = createContext();
 
@@ -19,6 +20,10 @@ export function IncidentProvider({ children }) {
   const [incidents, setIncidents] = useState([]);
   const [selectedIncidentId, setSelectedIncidentId] = useState(null);
   const { showToast } = useToast();
+  const { user } = useAuth();
+
+  // Actor recorded in the audit trail — mock-auth email until real auth (phase 2)
+  const actor = user?.email || "Unknown";
 
   const selectedIncident =
     incidents.find((inc) => inc.id === selectedIncidentId) ?? null;
@@ -43,7 +48,7 @@ export function IncidentProvider({ children }) {
 
   const addIncident = useCallback(async (incident) => {
     try {
-      const res = await createIncidentAPI(incident);
+      const res = await createIncidentAPI({ ...incident, actor });
       setIncidents((prev) => [res.data, ...prev]);
       showToast("Incident saved.", "success");
       return res.data;
@@ -52,7 +57,7 @@ export function IncidentProvider({ children }) {
       showToast("Failed to save incident. Please try again.", "error");
       return null;
     }
-  }, [showToast]);
+  }, [showToast, actor]);
 
   const updateIncidentStatus = useCallback(async (id, status) => {
     // Snapshot for rollback
@@ -65,7 +70,7 @@ export function IncidentProvider({ children }) {
     });
 
     try {
-      const res = await updateIncidentStatusAPI(id, status);
+      const res = await updateIncidentStatusAPI(id, status, actor);
       // Reconcile with the server's version (in case backend adds fields)
       setIncidents((prev) =>
         prev.map((inc) => (inc.id === id ? res.data : inc))
@@ -75,7 +80,7 @@ export function IncidentProvider({ children }) {
       setIncidents(previous); // rollback
       showToast("Couldn't update status — change reverted.", "error");
     }
-  }, [showToast]);
+  }, [showToast, actor]);
 
   const clearIncidents = useCallback(async () => {
     const previous = incidents;

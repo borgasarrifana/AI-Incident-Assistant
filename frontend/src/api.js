@@ -11,9 +11,12 @@ export const analyzeLogs = (text) => API.post("/logs/analyze", { text });
 
 // --- Incidents CRUD ---
 export const fetchIncidents = () => API.get("/incidents/");
+export const fetchIncidentAPI = (id) => API.get(`/incidents/${id}`);
+export const fetchIncidentEventsAPI = (id) => API.get(`/incidents/${id}/events`);
 export const createIncidentAPI = (incident) => API.post("/incidents/", incident);
-export const updateIncidentStatusAPI = (id, status) =>
-  API.patch(`/incidents/${id}/status`, { status });
+// actor: who made the change — until real auth (phase 2), this is the mock-auth email
+export const updateIncidentStatusAPI = (id, status, actor) =>
+  API.patch(`/incidents/${id}/status`, { status, actor });
 export const clearIncidentsAPI = () => API.delete("/incidents/");
 
 // --- Assignees CRUD ---

@@ -57,11 +57,13 @@ class IncidentCreate(BaseModel):
     longitude: float = 0
     status: str = "Open"
     workspaceId: Optional[str] = None
+    actor: str = "Unknown"  # who created it — replaced by JWT identity in auth phase 2
     result: IncidentResultIn
 
 
 class IncidentStatusUpdate(BaseModel):
     status: str
+    actor: str = "Unknown"  # who changed it — replaced by JWT identity in auth phase 2
 
 
 class IncidentResultOut(BaseModel):
@@ -89,3 +91,12 @@ class IncidentOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# --- Incident events (audit trail) ---
+class IncidentEventOut(BaseModel):
+    id: str
+    action: str
+    detail: str
+    actor: str
+    createdAt: datetime

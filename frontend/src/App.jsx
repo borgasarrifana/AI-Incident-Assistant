@@ -14,6 +14,7 @@ import { Menu } from "lucide-react";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Incidents = lazy(() => import("./pages/Incidents"));
+const IncidentDetail = lazy(() => import("./pages/IncidentDetail"));
 const Logs = lazy(() => import("./pages/Logs"));
 const Insights = lazy(() => import("./pages/Insights"));
 const Team = lazy(() => import("./pages/Team"));
@@ -46,6 +47,7 @@ function AppShell() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/incidents" element={<Incidents />} />
+            <Route path="/incidents/:id" element={<IncidentDetail />} />
             <Route path="/logs" element={<Logs />} />
             <Route path="/insights" element={<Insights />} />
             <Route path="/team" element={<Team />} />

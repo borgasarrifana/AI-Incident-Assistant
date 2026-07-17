@@ -57,3 +57,21 @@ class Incident(Base):
     assignee: Mapped[str] = mapped_column(String, default="Unassigned")
 
     workspace: Mapped[Optional["Workspace"]] = relationship("Workspace", back_populates="incidents")
+    events: Mapped[list["IncidentEvent"]] = relationship(
+        "IncidentEvent", back_populates="incident_ref", cascade="all, delete-orphan"
+    )
+
+
+class IncidentEvent(Base):
+    __tablename__ = "incident_events"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=generate_uuid)
+    incident_id: Mapped[str] = mapped_column(
+        ForeignKey("incidents.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    action: Mapped[str] = mapped_column(String, nullable=False)   # e.g. "created", "status_changed"
+    detail: Mapped[str] = mapped_column(Text, default="")          # e.g. "Open → Resolved"
+    actor: Mapped[str] = mapped_column(String, default="Unknown")  # user email (mock auth for now)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    incident_ref: Mapped["Incident"] = relationship("Incident", back_populates="events")
