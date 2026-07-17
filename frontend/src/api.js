@@ -19,7 +19,8 @@ export const clearIncidentsAPI = () => API.delete("/incidents/");
 // --- Assignees CRUD ---
 export const fetchAssignees = () => API.get("/assignees/");
 export const createAssigneeAPI = (name) => API.post("/assignees/", { name });
-export const updateAssigneeAPI = (id, name) => API.put(`/assignees/${id}`, { name });
+// payload: { name, avatar_url } — PUT replaces the record, so always send both
+export const updateAssigneeAPI = (id, payload) => API.put(`/assignees/${id}`, payload);
 export const deleteAssigneeAPI = (id) => API.delete(`/assignees/${id}`);
 
 // --- Workspaces CRUD ---

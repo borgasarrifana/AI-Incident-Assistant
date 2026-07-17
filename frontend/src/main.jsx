@@ -13,6 +13,10 @@ import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider } from "./context/ThemeContext";
 import { ToastProvider } from "./context/ToastContext";
 
+window.addEventListener("vite:preloadError", () => {
+  window.location.reload();
+});
+
 ReactDOM.createRoot(
   document.getElementById("root")
 ).render(

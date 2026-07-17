@@ -1,15 +1,37 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useAssignees } from "../context/AssigneeContext";
-import { Plus, Pencil, Trash2, Check, X, ShieldAlert, Users } from "lucide-react";
+import { useNotifications } from "../context/NotificationContext";
+import { uploadAvatar } from "../lib/supabase";
+import { Avatar } from "../components/AssigneeDropdown";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Check,
+  X,
+  ShieldAlert,
+  Users,
+  Camera,
+  Loader2,
+} from "lucide-react";
+
+const MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2 MB
 
 export default function Team() {
   const { user } = useAuth();
-  const { assignees, addAssignee, updateAssignee, removeAssignee } = useAssignees();
+  const { assignees, addAssignee, updateAssignee, updateAvatar, removeAssignee } =
+    useAssignees();
+  const { addNotification } = useNotifications();
 
   const [newName, setNewName] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editingName, setEditingName] = useState("");
+  const [uploadingId, setUploadingId] = useState(null);
+
+  // One hidden file input shared by all rows; targetRef tracks whose photo we're changing
+  const fileInputRef = useRef(null);
+  const uploadTargetRef = useRef(null);
 
   // Guard against direct URL access by non-admins (nav item is already hidden for them)
   if (user?.role !== "admin") {
@@ -48,8 +70,53 @@ export default function Team() {
     setEditingName("");
   };
 
+  // --- Avatar upload ---
+
+  const pickPhotoFor = (assignee) => {
+    uploadTargetRef.current = assignee;
+    fileInputRef.current?.click();
+  };
+
+  const handlePhotoSelected = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-selecting the same file later
+    const target = uploadTargetRef.current;
+    uploadTargetRef.current = null;
+    if (!file || !target) return;
+
+    if (!file.type.startsWith("image/")) {
+      addNotification("Please choose an image file", "error");
+      return;
+    }
+    if (file.size > MAX_AVATAR_SIZE) {
+      addNotification("Image must be smaller than 2 MB", "error");
+      return;
+    }
+
+    setUploadingId(target.id);
+    try {
+      const publicUrl = await uploadAvatar(file, target.id);
+      await updateAvatar(target.id, publicUrl);
+      addNotification(`Photo updated for ${target.name}`, "success");
+    } catch (err) {
+      console.error("Avatar upload failed", err);
+      addNotification("Photo upload failed — check Supabase Storage setup", "error");
+    } finally {
+      setUploadingId(null);
+    }
+  };
+
   return (
     <div className="space-y-6 pr-4 max-w-2xl">
+
+      {/* Shared hidden file input for avatar uploads */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handlePhotoSelected}
+        className="hidden"
+      />
 
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -82,6 +149,9 @@ export default function Team() {
             <Plus size={18} /> Add
           </button>
         </div>
+        <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
+          You can add a photo after creating the member.
+        </p>
       </div>
 
       {/* LIST */}
@@ -94,6 +164,31 @@ export default function Team() {
           <ul className="divide-y divide-slate-200 dark:divide-slate-800">
             {assignees.map((assignee) => (
               <li key={assignee.id} className="flex items-center gap-3 p-4">
+
+                {/* AVATAR + CHANGE PHOTO */}
+                <button
+                  onClick={() => pickPhotoFor(assignee)}
+                  disabled={uploadingId === assignee.id}
+                  title="Change photo"
+                  className="relative group flex-shrink-0 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                >
+                  <Avatar
+                    name={assignee.name}
+                    avatarUrl={assignee.avatar_url}
+                    size={36}
+                  />
+                  <span
+                    className="absolute inset-0 rounded-full flex items-center justify-center
+                      bg-slate-900/60 text-white opacity-0 group-hover:opacity-100 transition"
+                  >
+                    {uploadingId === assignee.id ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Camera size={14} />
+                    )}
+                  </span>
+                </button>
+
                 {editingId === assignee.id ? (
                   <>
                     <input

@@ -27,6 +27,7 @@ def update_assignee(assignee_id: str, payload: AssigneeUpdate, db: Session = Dep
     if not assignee:
         raise HTTPException(status_code=404, detail="Assignee not found")
     assignee.name = payload.name
+    assignee.avatar_url = payload.avatar_url
     db.commit()
     db.refresh(assignee)
     return assignee

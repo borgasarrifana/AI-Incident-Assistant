@@ -24,11 +24,13 @@ class AssigneeCreate(BaseModel):
 
 class AssigneeUpdate(BaseModel):
     name: str
+    avatar_url: Optional[str] = None
 
 
 class AssigneeOut(BaseModel):
     id: str
     name: str
+    avatar_url: Optional[str] = None
 
     class Config:
         from_attributes = True

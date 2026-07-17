@@ -38,12 +38,30 @@ export function AssigneeProvider({ children }) {
   const updateAssignee = async (id, name) => {
     const trimmed = name.trim();
     if (!trimmed) return;
+    const current = assignees.find((a) => a.id === id);
     try {
-      const res = await updateAssigneeAPI(id, trimmed);
+      // PUT replaces the record — re-send the existing avatar_url
+      // so renaming a member doesn't wipe their photo.
+      const res = await updateAssigneeAPI(id, {
+        name: trimmed,
+        avatar_url: current?.avatar_url ?? null,
+      });
       setAssignees((prev) => prev.map((a) => (a.id === id ? res.data : a)));
     } catch (e) {
       console.error("Failed to update assignee", e);
     }
+  };
+
+  // Persists a new avatar URL (image itself is already in Supabase Storage).
+  // Throws on failure so the caller can show an error state.
+  const updateAvatar = async (id, avatarUrl) => {
+    const current = assignees.find((a) => a.id === id);
+    if (!current) return;
+    const res = await updateAssigneeAPI(id, {
+      name: current.name,
+      avatar_url: avatarUrl,
+    });
+    setAssignees((prev) => prev.map((a) => (a.id === id ? res.data : a)));
   };
 
   const removeAssignee = async (id) => {
@@ -57,7 +75,7 @@ export function AssigneeProvider({ children }) {
 
   return (
     <AssigneeContext.Provider
-      value={{ assignees, addAssignee, updateAssignee, removeAssignee }}
+      value={{ assignees, addAssignee, updateAssignee, updateAvatar, removeAssignee }}
     >
       {children}
     </AssigneeContext.Provider>

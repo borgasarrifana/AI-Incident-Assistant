@@ -6,6 +6,7 @@ import { useAudit } from "../context/AuditContext";
 import { useAuth } from "../context/AuthContext";
 import { useIncident } from "../context/IncidentContext";
 import { useAssignees } from "../context/AssigneeContext";
+import AssigneeDropdown from "./AssigneeDropdown";
 import {
   Loader2,
   MapPin,
@@ -493,16 +494,11 @@ export default function IncidentAnalyzer() {
           <label className="block mb-1.5 text-sm font-medium text-slate-600 dark:text-slate-400">
             Assignee
           </label>
-          <select
+          <AssigneeDropdown
             value={assignee}
-            onChange={(e) => setAssignee(e.target.value)}
-            className={inputCls}
-          >
-            <option value="Unassigned">Unassigned</option>
-            {assignees.map((a) => (
-              <option key={a.id} value={a.name}>{a.name}</option>
-            ))}
-          </select>
+            onChange={setAssignee}
+            assignees={assignees}
+          />
         </div>
 
       </div>
